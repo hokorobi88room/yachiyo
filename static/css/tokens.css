@@ -1,0 +1,224 @@
+/* ==========================================================================
+   八千代 -yachiyo-  |  Design Tokens
+   朝日の国のカラー・タイポ・余白の「単一の情報源」。
+   ここに定義した変数のみを各CSSから var() で参照すること。
+   （CONCEPT §3 色 / §4 書体 / §5・§9 余白）
+
+   ★ 配色は「朝(light)」と「夜空(dark)」の2組を持ち、--night (0〜1) で連続に混ぜる。
+     --night は sky.js が時刻から決める:
+        6:00-7:00 で 1→0 へ、18:00-19:00 で 0→1 へ、1時間かけて渡る（境目のグラデーション）。
+     ヘッダーの切替ボタンで手動にもできるが、**保存はしない**。
+     次の日の出／日没をまたいだ時点で自動に戻る（sky.js）。
+     ダークと言っても色は「今の夜空」そのもの。朝日の色か、夜空の色か、その2つだけ。
+   ========================================================================== */
+
+/* --night : 空の「夜の度合い」（0〜1）。18時台・6時台の1時間をかけて渡る。
+   ★ ただし **読み面（文字と地）には使わない**。
+     文字と地を同じ値で同時に混ぜると、両者が途中で同じ中間色に収束し、
+     コントラストが 1.02:1 まで落ちて本文が消える（毎日2回、各約36分）。
+     なので --night は **装飾だけ**（空のグラデ・星・丘・富士・天体）に使う。
+
+   --ui-night : 読み面の「夜」（0 か 1 のみ）。--night が 0.5 を越えた瞬間に切り替わる。
+     切り替えは 0.8 秒でクロスフェードする。谷を通るのは一瞬なので、
+     ふつうのダークモード切替と同じ手ざわりで、AA を割る時間は実質ゼロ。 */
+@property --night {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --ui-night {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+:root {
+  --night: 0;
+  --ui-night: 0;
+  /* 空は1時間かけてゆっくり（手動切替では 2.4 秒）。読み面は 0.8 秒でぱっと渡る。 */
+  transition: --night 2.4s cubic-bezier(0.16, 1, 0.3, 1),
+              --ui-night 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --- 生の色 : 朝日の国 (CONCEPT §3)。ここは不変 --------------------- */
+  --iro-kinari:    #FDF6E9; /* 生成り : 朝の背景（純白は使わない）        */
+  --iro-kinari-2:  #FBF0DD; /* 生成り(濃) : セクション交互背景            */
+  --iro-sumi:      #3A3226; /* 墨 : 本文（真っ黒にしない）               */
+  --iro-akane:     #E8674A; /* 茜 : 朝日・アクセント                     */
+  --iro-akane-usu: #F3A490; /* 茜(淡)                                    */
+  --iro-yamabuki:  #F5B841; /* 山吹 : 光暈・ハイライト                   */
+  --iro-ai:        #1B2A4A; /* 藍 : 夜空・引き締め                       */
+  --iro-ai-2:      #2A3C5E; /* 藍(明) : 藍地の上のカード                 */
+  --iro-matsuba:   #5A7247; /* 松葉 : 自然系の差し色                     */
+  --iro-shironezu: #EDE8DE; /* 白鼠 : カード背景・罫線                   */
+
+  /* --- 朝(light) の組 ------------------------------------------------- */
+  --l-bg:          var(--iro-kinari);
+  --l-bg-alt:      var(--iro-kinari-2);
+  --l-surface:     #FFFDF8;               /* 浮いている紙（ドロップダウン等）*/
+  --l-card:        var(--iro-shironezu);  /* 記事カードの面（白鼠）        */
+  --l-text:        var(--iro-sumi);
+  --l-text-soft:   #6E6353;
+  --l-heading:     var(--iro-ai);         /* 見出し・アイコンの色          */
+  --l-deep:        var(--iro-ai);         /* 帯・フッターの“沈んだ面”      */
+  --l-rule:        var(--iro-shironezu);
+  --l-rule-strong: #8F8371;               /* 押せるものの輪郭（生成り地3.4:1）*/
+  --l-link:        #B5401F;               /* 生成り地 5.2:1 でAA           */
+  --l-cta-bg:      #B5401F;               /* ボタン地                      */
+  --l-cta-fg:      #F4EFE4;               /* ボタン文字（4.93:1）          */
+
+  /* --- 夜空(dark) の組。色は「いまの夜空」そのもの --------------------- */
+  --d-bg:          var(--iro-ai);         /* 藍                            */
+  --d-bg-alt:      #223458;
+  --d-surface:     var(--iro-ai-2);
+  --d-card:        #26375A;
+  --d-text:        #F4EFE4;               /* 藍地 12.3:1                   */
+  --d-text-soft:   #B4BCCC;               /* 藍地  7.2:1                   */
+  --d-heading:     #F7F3E9;
+  --d-deep:        #131E36;               /* 帯・フッターは地よりさらに沈める */
+  --d-rule:        #35476E;
+  --d-rule-strong: #7E8CAB;               /* 藍地 4.2:1（非テキスト3:1超）  */
+  --d-link:        var(--iro-yamabuki);   /* 藍地 8.0:1                    */
+  --d-cta-bg:      var(--iro-yamabuki);
+  --d-cta-fg:      var(--iro-sumi);       /* 山吹地に墨 7.4:1              */
+
+  /* --- 実際に使うトークン：2組を --night で混ぜる ---------------------- */
+  /* color-mix 非対応ブラウザでは下の宣言が捨てられ、朝の色のまま残る（劣化しない）*/
+  --bg:            var(--l-bg);
+  --bg-alt:        var(--l-bg-alt);
+  --surface:       var(--l-surface);
+  --card:          var(--l-card);
+  --text:          var(--l-text);
+  --text-soft:     var(--l-text-soft);
+  --heading:       var(--l-heading);
+  --deep:          var(--l-deep);
+  --rule:          var(--l-rule);
+  --rule-strong:   var(--l-rule-strong);
+  --link:          var(--l-link);
+  --cta-bg:        var(--l-cta-bg);
+  --cta-fg:        var(--l-cta-fg);
+
+  --bg:          color-mix(in srgb, var(--l-bg),          var(--d-bg)          calc(var(--ui-night) * 100%));
+  --bg-alt:      color-mix(in srgb, var(--l-bg-alt),      var(--d-bg-alt)      calc(var(--ui-night) * 100%));
+  --surface:     color-mix(in srgb, var(--l-surface),     var(--d-surface)     calc(var(--ui-night) * 100%));
+  --card:        color-mix(in srgb, var(--l-card),        var(--d-card)        calc(var(--ui-night) * 100%));
+  --text:        color-mix(in srgb, var(--l-text),        var(--d-text)        calc(var(--ui-night) * 100%));
+  --text-soft:   color-mix(in srgb, var(--l-text-soft),   var(--d-text-soft)   calc(var(--ui-night) * 100%));
+  --heading:     color-mix(in srgb, var(--l-heading),     var(--d-heading)     calc(var(--ui-night) * 100%));
+  --deep:        color-mix(in srgb, var(--l-deep),        var(--d-deep)        calc(var(--ui-night) * 100%));
+  --rule:        color-mix(in srgb, var(--l-rule),        var(--d-rule)        calc(var(--ui-night) * 100%));
+  --rule-strong: color-mix(in srgb, var(--l-rule-strong), var(--d-rule-strong) calc(var(--ui-night) * 100%));
+  --link:        color-mix(in srgb, var(--l-link),        var(--d-link)        calc(var(--ui-night) * 100%));
+  --cta-bg:      color-mix(in srgb, var(--l-cta-bg),      var(--d-cta-bg)      calc(var(--ui-night) * 100%));
+  --cta-fg:      color-mix(in srgb, var(--l-cta-fg),      var(--d-cta-fg)      calc(var(--ui-night) * 100%));
+
+  /* 空のグラデーション（4段）。朝⇄夜空をここで混ぜるので、
+     18時台・6時台の1時間はヒーローの空そのものがゆっくり渡る。 */
+  --l-sky-1: #EDE8DE;  --d-sky-1: #16233D;   /* 天頂 */
+  --l-sky-2: #FDF6E9;  --d-sky-2: #1B2A4A;
+  --l-sky-3: #FAEBDA;  --d-sky-3: #402D4A;
+  --l-sky-4: #F9D9C9;  --d-sky-4: #614B4A;   /* 地平 */
+  --sky-1: color-mix(in srgb, var(--l-sky-1), var(--d-sky-1) calc(var(--night) * 100%));
+  --sky-2: color-mix(in srgb, var(--l-sky-2), var(--d-sky-2) calc(var(--night) * 100%));
+  --sky-3: color-mix(in srgb, var(--l-sky-3), var(--d-sky-3) calc(var(--night) * 100%));
+  --sky-4: color-mix(in srgb, var(--l-sky-4), var(--d-sky-4) calc(var(--night) * 100%));
+
+  /* 昼夜で変えないもの */
+  --text-on-deep: #F4EFE4;   /* 藍地（帯・フッター）の上の文字。両モード共通 */
+  --primary:   var(--iro-akane);
+  --primary-strong: var(--link);   /* ホバーの文字色。モードに追従する      */
+  --focus:     var(--link);        /* フォーカスリングも同じ（非テキスト3:1超）*/
+  --accent:    var(--iro-yamabuki);
+  --nature:    var(--iro-matsuba); /* 松葉ピルは両モードで同じ（白文字4.6:1）*/
+}
+
+/* 夜は墨の影が藍地に沈んで見えないので、黒く濃い影に差し替える（カードが地から浮く）。
+   基本トークンの :root は下にもう一つ有り、同特異度だと後勝ちで昼の淡い影に負けるため、
+   セレクタを :root.is-dark（特異度 0,2,0）にして夜の濃い影を確実に勝たせる。 */
+:root.is-dark {
+  color-scheme: dark;    /* スクロールバー・フォーム部品など UA 由来の UI も夜に合わせる */
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.30);
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.38);
+  --shadow-lift: 0 12px 34px rgba(0, 0, 0, 0.46);
+}
+
+/* 昼夜で変えない基本トークン（書体・寸法・余白・角丸・影(淡)・motion・z）。
+   ここは必ず :root に置く。以前 .is-dark 内に閉じ込められており、昼（is-dark 無し）で
+   これらが未定義になって全ページが崩れていた（QAで検出）。 */
+:root {
+  /* --- 書体 (CONCEPT §4) ----------------------------------------------- */
+  /* 見出し : 品のある柔らかな明朝。太ゴシック・江戸文字・勘亭流は使わない */
+  --font-mincho: "Zen Old Mincho", "Noto Serif JP", "Noto Serif CJK JP", "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "MS Mincho", serif;
+  /* 本文 : 読みやすさ最優先のゴシック */
+  --font-gothic: "Zen Kaku Gothic New", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Meiryo", sans-serif;
+
+  /* type scale（本文17px は CONCEPT §5.2 の指定。見出しは段差をはっきりさせる）*/
+  --fs-hero:  clamp(1.35rem, 1rem + 2.1vw, 1.9rem);  /* ヒーローの縦書きキャッチ */
+  --fs-h1:    clamp(1.5rem, 1.15rem + 1.8vw, 2.1rem);
+  --fs-h2:    clamp(1.25rem, 1.05rem + 1.0vw, 1.6rem);
+  --fs-h3:    clamp(1.2rem, 1.1rem + 0.5vw, 1.35rem); /* 本文との段差を確保 */
+  --fs-body:  1.0625rem;   /* 17px : 記事本文 */
+  --fs-lead:  1.125rem;
+  --fs-small: 0.875rem;
+  --lh-body:  1.9;         /* 記事の行間（CONCEPT §5.2）*/
+  --lh-ui:    1.7;
+  --lh-head:  1.45;
+
+  /* 字間（トラッキング）の段階。飾り文字の字間はこの4段からのみ選ぶ */
+  --ls-head:  0.04em;      /* 見出し・小ラベル                          */
+  --ls-mid:   0.08em;      /* 和文の軽い開き（鏡のことば等）            */
+  --ls-wide:  0.14em;      /* 縦書きキャッチ                            */
+  --ls-label: 0.24em;      /* 欧文の小ラベル・よみ・スキップ告知        */
+
+  /* --- 余白・寸法 (CONCEPT §5, §9) ------------------------------------- */
+  --wrap:        1080px;   /* 全体の最大幅 */
+  --measure:     680px;    /* 記事本文の読みやすい幅 */
+  --gap:         clamp(1rem, 0.6rem + 1.6vw, 2rem);
+  /* セクション間の“間”。下限 64px に実際に到達する式にする
+     （旧 clamp(64px, 6rem + 4vw, 120px) は優先値が常に 96px 超で下限が死んでいた）*/
+  --section-pad: clamp(64px, 3rem + 6vw, 120px);
+  --pad-inline:  clamp(36px, 8vw, 80px);   /* 左右のゆとり（モバイルでも端に詰めない）*/
+
+  /* ヘッダー実寸の既定値（min-height 64px + しめ縄ライン 7px）。
+     main.js が実測値で上書きするが、JS 実行前もヒーロー高がズレないようここで既定を持つ */
+  --header-h:    71px;
+
+  --radius:      12px;     /* カード角丸（CONCEPT §5.1-b）*/
+  --radius-sm:   8px;
+  --radius-lg:   20px;
+  --radius-pill: 999px;
+
+  /* elevation（影は淡く、影というより“紙の浮き”）。
+     夜は墨の影が藍地に効かないので、影を濃くしつつ面を上げて“浮き”を作る。 */
+  --shadow-soft: 0 2px 10px rgba(58, 50, 38, 0.06);
+  --shadow-card: 0 6px 24px rgba(58, 50, 38, 0.09);
+  --shadow-lift: 0 12px 34px rgba(58, 50, 38, 0.13);
+
+  /* motion : --dur は「演出」用の長さ。ホバー等のUI反応は --dur-ui を使う */
+  --ease:     cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-ui:   0.22s;       /* ホバー・フォーカス・開閉のような即応すべき変化 */
+  --dur:      0.5s;
+  --dur-slow: 0.9s;
+
+  /* z-index 階層 */
+  --z-header:   100;
+  --z-entrance: 9000;   /* 鳥居エントランスは最前面 */
+
+  /* breakpoints : 600px / 960px。
+     @media は var() を解決できないため各CSS（base / hero / mirror / pages）に直書きする。
+     JS へ渡す必要が出たら data 属性か JS 側の定数で持つこと。 */
+}
+
+/* --------------------------------------------------------------------------
+   コントラスト強化の希望（prefers-contrast: more）。forced-colors とは別物。
+   補足系の文字を本文と同じ濃さへ引き上げ、フォーカスリングを太くする。
+   -------------------------------------------------------------------------- */
+@media (prefers-contrast: more) {
+  :root {
+    --l-text-soft: var(--l-text);
+    --d-text-soft: var(--d-text);
+  }
+  :focus-visible {
+    outline-width: 3px;
+  }
+}

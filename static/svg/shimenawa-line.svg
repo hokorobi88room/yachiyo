@@ -1,0 +1,22 @@
+<svg viewBox="0 0 1200 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <!-- 横長しめ縄：麻縄の撚り＋小さな紙垂。横に伸縮しても自然に見える。見出し脇・ヘッダー極細ライン用 -->
+  <defs>
+    <!-- 撚りの陰影（斜線の繰り返し）。userSpaceでviewBoxごと拡縮＝縄目が保たれる -->
+    <pattern id="shime-twist" width="30" height="16" patternUnits="userSpaceOnUse" patternTransform="translate(0 12)">
+      <path d="M-6 18 L16 -2 M14 18 L36 -2" stroke="#BFA987" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    </pattern>
+  </defs>
+  <!-- 縄本体（麻縄色） -->
+  <rect x="0" y="12" width="1200" height="16" rx="8" fill="#D9C7A3"/>
+  <!-- 撚りの陰影（縄目） -->
+  <rect x="0" y="12" width="1200" height="16" rx="8" fill="url(#shime-twist)"/>
+  <!-- 紙垂（白・茜・白） -->
+  <g stroke-linejoin="round">
+    <path transform="translate(284 24)" fill="#FFFDF8" stroke="#E3D5BC" stroke-width="0.8"
+          d="M0 0 L12 0 L12 5 L7 5 L7 10 L12 10 L10 14 L2 14 L0 10 L5 10 L5 5 L0 5 Z"/>
+    <path transform="translate(594 24)" fill="#E8674A" stroke="#C9502F" stroke-width="0.8"
+          d="M0 0 L12 0 L12 5 L7 5 L7 10 L12 10 L10 14 L2 14 L0 10 L5 10 L5 5 L0 5 Z"/>
+    <path transform="translate(904 24)" fill="#FFFDF8" stroke="#E3D5BC" stroke-width="0.8"
+          d="M0 0 L12 0 L12 5 L7 5 L7 10 L12 10 L10 14 L2 14 L0 10 L5 10 L5 5 L0 5 Z"/>
+  </g>
+</svg>

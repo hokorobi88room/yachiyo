@@ -1,0 +1,42 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <!-- 記事サムネ：「木漏れ日」という語のうつくしさ（ことばと物語）
+       葉のすきまと、地面に落ちた光のまだら。松葉色が主役の一枚 -->
+  <defs>
+    <radialGradient id="komo-hikari" cx="62%" cy="18%" r="62%">
+      <stop offset="0" stop-color="#F5B841" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="#FDF6E9"/>
+  <rect width="640" height="360" fill="url(#komo-hikari)"/>
+
+  <!-- 葉むら（松葉のやわらかい影・重ねて濃淡を出す） -->
+  <g fill="#5A7247">
+    <ellipse cx="118" cy="46" rx="120" ry="62" fill-opacity="0.20"/>
+    <ellipse cx="256" cy="24" rx="104" ry="52" fill-opacity="0.16"/>
+    <ellipse cx="430" cy="52" rx="92" ry="44" fill-opacity="0.13"/>
+    <ellipse cx="580" cy="30" rx="98" ry="50" fill-opacity="0.18"/>
+    <ellipse cx="186" cy="104" rx="66" ry="30" fill-opacity="0.12"/>
+    <ellipse cx="520" cy="112" rx="58" ry="26" fill-opacity="0.10"/>
+  </g>
+  <!-- 枝（細い墨の線） -->
+  <g fill="none" stroke="#3A3226" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round">
+    <path d="M0 18 Q140 62 232 46"/>
+    <path d="M232 46 Q330 34 420 76"/>
+    <path d="M420 76 Q520 100 640 74"/>
+  </g>
+
+  <!-- 地面に落ちた光のまだら（大きさと濃さをばらけさせる） -->
+  <g fill="#F5B841">
+    <ellipse cx="196" cy="248" rx="46" ry="26" fill-opacity="0.34" transform="rotate(-14 196 248)"/>
+    <ellipse cx="300" cy="290" rx="34" ry="19" fill-opacity="0.26" transform="rotate(9 300 290)"/>
+    <ellipse cx="408" cy="240" rx="40" ry="22" fill-opacity="0.30" transform="rotate(-6 408 240)"/>
+    <ellipse cx="502" cy="300" rx="28" ry="16" fill-opacity="0.22" transform="rotate(16 502 300)"/>
+    <ellipse cx="118" cy="312" rx="24" ry="14" fill-opacity="0.20" transform="rotate(-20 118 312)"/>
+    <ellipse cx="566" cy="228" rx="20" ry="12" fill-opacity="0.18"/>
+  </g>
+
+  <!-- 歩道の縁（白鼠のごく細い罫） -->
+  <path d="M0 336 H640" fill="none" stroke="#EDE8DE" stroke-width="10"/>
+</svg>

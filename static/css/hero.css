@@ -1,0 +1,418 @@
+/* ==========================================================================
+   八千代 -yachiyo-  |  hero.css
+   トップの主役まわり：ヒーローの器・縦書きキャッチ・遠景の富士・スクロール促し、
+   ＋ トップ固有セクション（最新記事の見出し／カテゴリ列／今日の一言）。
+   色・寸法は tokens.css の変数のみ。中間色は color-mix で token から生成する。
+   背景の八千代アニメは yachiyo.css、鏡は mirror.css が担当。
+   base.css の共通クラス（.section / .card-grid / .cat-chip 等）は再定義しない。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. ヒーローの器（100vh・中身を中央へ）
+   -------------------------------------------------------------------------- */
+.hero{
+  position: relative;
+  min-height: 100vh;
+  /* ヘッダー高（main.js が --header-h を公開）を差し引き、ヘッダー＋ヒーローで
+     ちょうど1画面に収める＝スクロール促しが初期表示で見える。svh でアドレスバー分も除外。
+     フォールバック 72px＝ヘッダーの実測高（min-height 64px + しめ縄 7px）。
+     0px だと JS 実行前にヒーローが高すぎ、直後に縮んでレイアウトシフトになる。 */
+  min-height: calc(100svh - var(--header-h, 72px));
+  overflow: hidden;            /* 八千代の流れ・花びらを内側で切る（横スクロール防止） */
+  display: grid;
+  place-items: center;
+  isolation: isolate;          /* 内部の重なり（鏡の映り込み等）を閉じる */
+}
+
+/* 中身（キャッチ＋鏡）。既定＝横並び中央、モバイルは縦積み */
+.hero__stage{
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.75rem, 7vw, 5.5rem);
+  padding-block: clamp(5rem, 14vh, 8rem);   /* 上下に“間”。スクロール促しと重ねない */
+}
+
+/* --------------------------------------------------------------------------
+   2. 縦書きキャッチコピー（サイト内で縦書きはここだけ／CONCEPT §4）
+   -------------------------------------------------------------------------- */
+.hero__catch{
+  writing-mode: vertical-rl;
+  margin: 0;
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  font-size: clamp(1.35rem, 1rem + 2.1vw, 1.9rem);
+  line-height: 1.9;
+  letter-spacing: 0.14em;
+  color: var(--text);          /* 墨 */
+  /* 背景（八千代）に負けない、ごく淡い生成りのにじみ */
+  text-shadow: 0 1px 12px color-mix(in srgb, var(--bg) 72%, transparent);
+
+  /* --- 2行を「頭ぞろえ」で真っ直ぐに立てる ---
+     ・text-align: start … 縦書きでは行の“上ぞろえ”。中央ぞろえだと、長さの違う
+       2行が上下にずれて、字が階段状に見える（＝真っ直ぐに見えない）。
+     ・font-feature-settings: normal … body の "palt"（横組み用の約物詰め）は
+       縦組みでは字送りを狂わせる。縦組みで詰めるなら "vpal" だが、
+       ここは詰めずに素の字送りで一直線に並べる。
+     ・text-wrap は使わない（改行は <br> の位置だけで決める）。 */
+  text-align: start;
+  font-feature-settings: normal;
+  text-wrap: nowrap;
+  font-kerning: none;
+}
+
+/* 夜になると --text / --heading / --bg などのトークン自体が夜空の組へ渡るので、
+   ヒーローの中の文字と小物は自動で反転する（個別の上書きは要らない）。
+   キャッチの“にじみ”だけは地色に追従させる。 */
+.hero__catch{ text-shadow: 0 1px 12px color-mix(in srgb, var(--bg) 72%, transparent); }
+
+/* --------------------------------------------------------------------------
+   3. 遠景の富士（右下・淡い藍・主張させない）
+   -------------------------------------------------------------------------- */
+.hero__fuji{
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  /* 裾を水際（水面の上端＝境目）に置く。clamp は .yachiyo__water の高さと同じ値。
+     -4px は裾の描線を水にわずかに浸けて、切り紙のような浮きを消すぶん。 */
+  bottom: calc(clamp(90px, 20vh, 200px) - 4px);
+  width: clamp(300px, 46vw, 620px);
+  aspect-ratio: 813 / 220;
+  /* 描いてもらった富士の素材をそのまま置く（不透明度低減・マスク・フィルタなし）*/
+  background: url("../img/fuji.webp") no-repeat right bottom / contain;
+  opacity: 1;
+  pointer-events: none;
+}
+/* 富士の水鏡。水面に上下反転の像をごく淡く落とす（鏡が桜を映すのと同じ世界の物理）。
+   邪魔なら、この ::after ブロックを消すだけで戻る。 */
+.hero__fuji::after{
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: inherit;
+  transform: scaleY(-1);
+  opacity: 0.13;
+  filter: blur(1.5px) saturate(0.7);
+  /* scaleY(-1) でマスクごと反転するので、「局所の下＝画面では水際」を濃くする */
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.75), transparent 62%);
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.75), transparent 62%);
+}
+
+
+/* --------------------------------------------------------------------------
+   4. スクロール促し（小さな鳥居＋ゆるい上下バウンス）
+   -------------------------------------------------------------------------- */
+.hero__cue{
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: clamp(14px, 3vh, 30px);
+  transform: translateX(-50%);
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.hero__cue::before{
+  content: "";
+  width: 24px;
+  height: 24px;
+  background: var(--heading);   /* 鳥居。朝は藍、夜は淡い色になる */
+  -webkit-mask: url("../svg/torii.svg") center / contain no-repeat;
+  mask: url("../svg/torii.svg") center / contain no-repeat;
+  animation: cue-bounce 2.4s var(--ease) infinite;
+}
+@keyframes cue-bounce{
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+.hero__cue:hover::before{ background: var(--primary); }
+
+/* --------------------------------------------------------------------------
+   5. トップ固有セクション（共通 .section の中で使う小物レイアウト）
+   -------------------------------------------------------------------------- */
+
+/* (b) 見出し左のしめ縄飾り（.section__head に併用） */
+/* しめ縄の飾り罫は**見出しの真上に、中央ぞろえ**で置く（横に並べると左に寄って見える）。 */
+.home-head{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 2vw, 1rem);
+}
+.home-head .shimenawa-rule{
+  margin-inline: auto;
+}
+.home-head .section__lead{
+  margin-top: 0.4rem;
+  text-align: center;
+}
+
+/* 記事なしのひとこと */
+.home-empty{
+  color: var(--text-soft);
+  font-size: var(--fs-lead);
+}
+
+/* (c) カテゴリの丸チップ横並び（base の .cat-chip を並べる器）
+   flex の成り行き折返しだと 6枚が「5＋1」に割れて最後の1枚が孤立するため、
+   列数を明示した grid にして常に余りなく整列させる（CONCEPT §5.1-c「横並び」）。 */
+.home-cats{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));   /* 〜599px：2列×3行 */
+  justify-items: center;
+  gap: clamp(1.25rem, 4vw, 2.5rem);
+}
+@media (min-width: 600px){
+  .home-cats{ grid-template-columns: repeat(3, minmax(0, 1fr)); }   /* 600〜959px：3列×2行 */
+}
+@media (min-width: 960px){
+  .home-cats{
+    grid-template-columns: repeat(6, minmax(0, 1fr));               /* 960px〜：6列×1行 */
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+}
+
+/* (d) 今日の一言：藍地＋夜明け前の星空（ヒーローの朝と対比） */
+.home-word{
+  position: relative;
+  overflow: hidden;
+  color: var(--text-on-deep);
+  text-align: center;
+  /* color-mix 非対応ブラウザでは background-image が丸ごと無効化されるため、
+     藍地は background-color に分けて必ず残す（白地に text-on-deep が乗る事故を防ぐ） */
+  background-color: var(--deep);
+  background-image:
+    /* 地平にのぞく茜＝夜明けの兆し（放射光線は描かない） */
+    radial-gradient(140% 92% at 50% 122%,
+      color-mix(in srgb, var(--primary) 30%, transparent) 0%,
+      transparent 58%),
+    linear-gradient(180deg,
+      var(--deep) 0%,
+      color-mix(in srgb, var(--iro-ai-2) 70%, var(--deep)) 100%);
+}
+/* 星のまたたき（散らした小さな光点） */
+.home-word::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 24%, color-mix(in srgb, var(--text-on-deep) 90%, transparent), transparent 60%),
+    radial-gradient(1.4px 1.4px at 27% 62%, color-mix(in srgb, var(--text-on-deep) 75%, transparent), transparent 60%),
+    radial-gradient(1.8px 1.8px at 44% 18%, color-mix(in srgb, var(--accent) 85%, transparent), transparent 60%),
+    radial-gradient(1.3px 1.3px at 58% 74%, color-mix(in srgb, var(--text-on-deep) 70%, transparent), transparent 60%),
+    radial-gradient(1.6px 1.6px at 71% 30%, color-mix(in srgb, var(--text-on-deep) 88%, transparent), transparent 60%),
+    radial-gradient(1.4px 1.4px at 84% 58%, color-mix(in srgb, var(--text-on-deep) 72%, transparent), transparent 60%),
+    radial-gradient(1.5px 1.5px at 90% 22%, color-mix(in srgb, var(--accent) 70%, transparent), transparent 60%),
+    radial-gradient(1.3px 1.3px at 36% 42%, color-mix(in srgb, var(--text-on-deep) 66%, transparent), transparent 60%);
+  opacity: 0.55;
+  animation: word-twinkle 6s ease-in-out infinite;
+}
+@keyframes word-twinkle{
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.72; }
+}
+
+.home-word__inner{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  /* 藍地の帯に、上下たっぷり“間”を取る（歌が窮屈に見えないように） */
+  padding-block: clamp(1.5rem, 5vh, 3.5rem);
+}
+/* セクション見出し（h2）。見出しレベルは持たせつつ、見た目は小さなラベルのまま */
+.home-word__label{
+  font-family: var(--font-mincho);
+  font-weight: 400;
+  font-size: var(--fs-small);
+  line-height: var(--lh-ui);
+  letter-spacing: 0.3em;
+  color: color-mix(in srgb, var(--accent) 80%, var(--text-on-deep));
+}
+/* --- 御製（縦書き）------------------------------------------------------
+   五七五七七を「一句＝一列」に立てる。右から左へ読む。
+   字下げは 0・1・2・0・1 字（上句で少しずつ下がり、下句の頭でまた戻る）。
+   flex を row-reverse にしているので、DOM の先頭（初句）が右端の列になる。 */
+.gyosei{
+  display: flex;
+  flex-direction: row-reverse;   /* 初句を右端に */
+  justify-content: center;
+  align-items: flex-start;       /* 各列の頭を上でそろえ、字下げぶんだけ下げる */
+  gap: 0.5em;
+  margin-top: 0.6rem;
+}
+.gyosei__ku{
+  writing-mode: vertical-rl;
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  font-size: clamp(1.2rem, 0.95rem + 1.5vw, 1.7rem);
+  letter-spacing: var(--ls-mid);
+  line-height: 1;
+  /* 縦組みでは body の "palt"（横組み用の約物詰め）が字送りを狂わせる。素の字送りで一直線に。 */
+  font-feature-settings: normal;
+  font-kerning: none;
+  text-align: start;
+  white-space: nowrap;
+}
+/* 字下げ（列の頭に空ける一字ぶん）。inline style は CSP で使えないのでクラスで持つ。 */
+.gyosei__ku--i0{ padding-top: 0; }
+.gyosei__ku--i1{ padding-top: 1em; }
+.gyosei__ku--i2{ padding-top: 2em; }
+
+/* 欧文の辞世は縦書きにできない。横書きで、行を積んで出す。 */
+.gyosei--yoko{
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4em;
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+.gyosei--yoko .gyosei__ku{
+  writing-mode: horizontal-tb;
+  white-space: normal;
+  padding-top: 0;
+  line-height: 1.9;
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.2rem);
+  text-align: center;
+}
+
+/* 詠み手の説明（「長州藩の思想家。安政の大獄で刑死」など）。控えめに一行 */
+.home-word__who{
+  margin-top: 0.1rem;
+  font-size: var(--fs-small);
+  opacity: 0.6;
+  max-width: var(--measure);
+}
+
+/* 一首の下：歌集への出口（ボタン3つ。解説を詠む／一覧／よみかた） */
+.home-word__more{
+  margin-top: 1.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem 0.8rem;
+}
+
+/* 最新記事の下に置く、ささやかな出口リンク */
+.home-more{
+  margin-top: 1.4rem;
+  text-align: center;
+  font-size: var(--fs-small);
+  letter-spacing: 0.08em;
+}
+.home-more a{
+  color: var(--link);
+  text-underline-offset: 0.3em;
+}
+
+/* 歌そのものが、その一首の解説へのリンク。
+   読みの静けさを壊さないよう、hover/focus で句の色がそっと変わるだけにする */
+.gyosei-link{
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 8px;
+}
+.gyosei-link .gyosei__ku{
+  transition: color var(--dur-ui) var(--ease);
+}
+.gyosei-link:hover .gyosei__ku,
+.gyosei-link:focus-visible .gyosei__ku{
+  color: var(--link);
+}
+.home-word__yomi{
+  font-size: var(--fs-small);
+  letter-spacing: 0.2em;
+  opacity: 0.72;
+}
+/* 詠み手と年。控えめに、歌のあとへ小さく添える。 */
+.home-word__by{
+  margin-top: 0.2rem;
+  font-size: var(--fs-small);
+  letter-spacing: 0.12em;
+  opacity: 0.72;
+}
+.home-word__sep{ margin-inline: 0.5em; }
+.home-word__rule{
+  width: 2.5rem;
+  height: 1px;
+  margin: 0.35rem 0;
+  background: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.home-word__note{
+  max-width: var(--measure);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-ui);
+  opacity: 0.9;
+}
+
+/* --------------------------------------------------------------------------
+   6. レスポンシブ（600px でヒーローを縦積みに）
+   -------------------------------------------------------------------------- */
+@media (max-width: 599.98px){
+  .hero__stage{
+    flex-direction: column;
+    /* 中身を詰め、下は促し鳥居の占有高（46px + bottom 20px）より大きく空ける。
+       こうしないと縦書きキャッチの末尾に鳥居が重なる。 */
+    gap: clamp(0.5rem, 1.5vh, 0.9rem);
+    padding-block: clamp(0.75rem, 2vh, 1.25rem) clamp(4.5rem, 11vh, 5rem);
+  }
+  /* モバイルは「鏡 → キャッチ」の順（DOM はキャッチ→鏡なので order で入替） */
+  .hero__catch{
+    order: 2;
+    font-size: clamp(1.15rem, 0.9rem + 1.6vw, 1.4rem);   /* 詰めたぶん高さも抑える */
+    line-height: 1.8;
+  }
+  .mirror{ order: 1; }
+}
+
+/* 横向きスマホ・低い画面（高さ基準の分岐）。
+   幅だけのブレークポイントでは、横向きでヒーローが画面高の1.5倍になり
+   鏡の下半分と促し鳥居がファーストビューの外へ出てしまう。 */
+@media (max-height: 560px) and (orientation: landscape){
+  .hero__stage{
+    padding-block: clamp(1rem, 4vh, 2rem);
+    gap: clamp(1rem, 4vw, 2.5rem);
+  }
+  .hero__catch{ font-size: 1.35rem; }
+  .hero__cue{
+    bottom: 6px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   7. モーション配慮（静止フォールバック）
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce){
+  .hero__cue::before{ animation: none; }
+  .home-word::before{ animation: none; opacity: 0.5; }
+  .yachiyo__stars{ animation: none; }
+}
+
+/* --------------------------------------------------------------------------
+   8. 一時停止（yachiyo.js が画面外／非表示タブで .is-paused を付ける）
+      ヒーロー配下の無限アニメ（空・霞・光の粒・鏡のゆらぎ・促しのバウンス）を
+      まとめて止め、見えていないあいだの合成コストを 0 にする。
+   -------------------------------------------------------------------------- */
+.hero.is-paused *,
+.hero.is-paused *::before,
+.hero.is-paused *::after{
+  animation-play-state: paused !important;
+}

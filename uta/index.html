@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>和歌を読む｜八千代 -yachiyo-</title>
+  <meta name="description" content="五七五七七のかたち、枕詞や掛詞といった技法、そして名歌の鑑賞まで。千年をこえて詠みつがれてきた和歌の読みかたを、朝のような静けさで案内します。">
+  <link rel="canonical" href="https://hokorobi88room.github.io/yachiyo/uta/">
+  
+  <link rel="alternate" type="application/atom+xml" title="八千代 -yachiyo-" href="/yachiyo/feed.xml">
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="八千代 -yachiyo-">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:url" content="https://hokorobi88room.github.io/yachiyo/uta/">
+  <meta property="og:title" content="和歌を読む — 三十一音の、いちばん短い物語｜八千代">
+  <meta property="og:description" content="五七五七七のかたち、枕詞や掛詞といった技法、そして名歌の鑑賞まで。千年をこえて詠みつがれてきた和歌の読みかたを、朝のような静けさで案内します。">
+  <meta property="og:image" content="https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="和歌を読む — 三十一音の、いちばん短い物語｜八千代">
+  <meta name="twitter:description" content="五七五七七のかたち、枕詞や掛詞といった技法、そして名歌の鑑賞まで。千年をこえて詠みつがれてきた和歌の読みかたを、朝のような静けさで案内します。">
+  <meta name="twitter:image" content="https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg">
+
+  
+  <link rel="icon" type="image/webp" href="/yachiyo/static/img/icons/favicon.webp?v=3ae21d36">
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="/yachiyo/static/img/icons/icon-32.png?v=1ac891f9">
+  
+  <link rel="apple-touch-icon" href="/yachiyo/static/img/icons/icon-180.png?v=ad6337d9">
+  <link rel="manifest" href="/yachiyo/site.webmanifest">
+  
+  <meta name="theme-color" content="#FDF6E9">
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" media="print" data-font-css>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap"></noscript>
+
+  <link rel="stylesheet" href="/yachiyo/static/css/tokens.css?v=1a533e2a">
+  <link rel="stylesheet" href="/yachiyo/static/css/base.css?v=9c4d4b43">
+  
+  
+  <link rel="stylesheet" href="/yachiyo/static/css/uta.css?v=80322529">
+
+
+  <script>
+    /* (1) 同一セッションの再訪はエントランスを出さない（描画前に判定しチラつきを防ぐ）
+       (2) 夜の時間帯なら、最初の描画から夜空の配色にする（朝の色が一瞬見えるのを防ぐ）
+           ＝ sky.js と同じ式。sky.js は defer なので、ここで先に当てておく。
+       (3) media="print" で読んだフォントCSSを、描画をブロックせずに有効化する */
+    (function () {
+      try {
+        if (sessionStorage.getItem('yachiyo:entered')) {
+          document.documentElement.classList.add('ent-skip');
+        }
+      } catch (e) { /* プライベートモード等は初回扱い */ }
+
+      var d = new Date();
+      var h = d.getHours() + d.getMinutes() / 60;
+      var night = (h < 6 || h >= 18);
+      var n = (h >= 19 || h < 6) ? 1
+            : (h >= 7 && h < 18) ? 0
+            : (h >= 18) ? (h - 18) : (1 - (h - 6));
+      /* 天体の位置も**描画前に**確定させる。ここで入れておかないと、
+         最初の1フレームは CSS の既定値で描かれ、そこから transition で
+         正しい位置へ滑ってしまう（＝リロードのたび天体の場所が違って見える）。
+         ★ 式は sky.js の apply() と**一字一句同一**にすること（x: 100-100t / y: 80-72sin）。
+           片方だけ変えると、初回フレームの位置から sky.js が滑らせ直して
+           「天体がリロードのたび動く」バグが再発する。変えるときは両方同時に。 */
+      var t = night ? (((h - 18) + 24) % 24) / 12 : (h - 6) / 12;
+      var el = document.documentElement;
+      el.style.setProperty('--night', n.toFixed(3));
+      /* 読み面は 0 か 1 だけ（連続に混ぜると文字が地に溶ける／sky.js と同じ規則） */
+      el.style.setProperty('--ui-night', n >= 0.5 ? '1' : '0');
+      el.style.setProperty('--sky-x', (100 - t * 100).toFixed(2) + '%');
+      el.style.setProperty('--sky-y', (80 - 72 * Math.sin(Math.PI * t)).toFixed(2) + '%');
+      el.classList.toggle('sky-night', night);
+      el.classList.toggle('sky-day', !night);
+      el.classList.toggle('is-dark', n >= 0.5);
+      var f = document.querySelector('[data-font-css]');
+      if (f) {
+        f.addEventListener('load', function () { f.media = 'all'; }, { once: true });
+      }
+    })();
+  </script>
+
+  
+  
+</head>
+<body class="" data-page="uta">
+
+  
+  <a class="skip-link" href="#main">本文へスキップ</a>
+
+  
+  
+
+  
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="/yachiyo/" aria-label="八千代 ホームへ">
+        <span class="brand__ja">八千代</span>
+        <span class="brand__en">yachiyo</span>
+      </a>
+
+      
+      <button class="nav-burger" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-burger>
+        <span class="nav-burger__bars" aria-hidden="true"></span>
+        <span class="nav-burger__label">メニュー</span>
+      </button>
+
+      <nav class="nav" id="site-nav" aria-label="メインナビゲーション" data-nav>
+        <a class="nav__link" href="/yachiyo/"
+           >ホーム</a>
+
+        <div class="nav__group" data-nav-group>
+          <button class="nav__link nav__toggle" type="button"
+                  aria-expanded="false" aria-controls="nav-categories" data-nav-toggle>
+            きづき<span class="nav__caret" aria-hidden="true"></span>
+          </button>
+          <ul class="nav__menu" id="nav-categories" data-nav-menu hidden>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/kizuki/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>すべての気づき</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/kurashi/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/owan.webp?v=4deec49a" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>くらしの美</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/keshiki/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/torii.webp?v=c66c0007" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>風景と旅</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/kotoba/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>ことばと物語</span>
+                
+                <span class="pill--count" aria-hidden="true">442</span><span class="visually-hidden">442本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/pop/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/gakubou.webp?v=5562f509" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>ポップと青春</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/ima/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/tsuru.webp?v=da8680e0" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>いまの日本</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/waza/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/kanazuchi.webp?v=e483c6ac" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>技と職人</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+          </ul>
+        </div>
+
+        <a class="nav__link" href="/yachiyo/uta/"
+           aria-current="page">うた</a>
+
+        <a class="nav__link" href="/yachiyo/about/"
+           >このサイトについて</a>
+
+        
+        
+        <button class="theme-toggle" type="button" data-theme-toggle>
+          <span class="theme-toggle__mark" aria-hidden="true"></span>
+          <span class="theme-toggle__label" data-theme-label>夜にする</span>
+        </button>
+      </nav>
+    </div>
+    
+    <div class="site-header__shimenawa" aria-hidden="true"></div>
+  </header>
+
+  <main id="main" class="site-main" tabindex="-1">
+    
+    
+
+
+<section class="section uta-hero">
+  <div class="wrap">
+    <span class="sun-ornament uta-hero__sun" aria-hidden="true"></span>
+    <h1 class="uta-hero__catch">三十一音に、季節と心をあずけて。</h1>
+    <p class="uta-hero__lead">和歌は、五・七・五・七・七のわずか三十一音でつくる、日本でいちばん短い詩のかたち。声に出せば一呼吸ほどのその中に、人は千年をこえて、空の色や胸のうちを託してきました。今朝は一首、静かに読んでみませんか。</p>
+
+    <div class="uta-hero__poem">
+      <div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">八雲立つ</span><span class="gyosei__ku gyosei__ku--i1">出雲八重垣</span><span class="gyosei__ku gyosei__ku--i2">妻籠みに</span><span class="gyosei__ku gyosei__ku--i0">八重垣作る</span><span class="gyosei__ku gyosei__ku--i1">その八重垣を</span></div>
+<p class="visually-hidden">八雲立つ出雲八重垣妻籠みに八重垣作るその八重垣を</p>
+      <p class="uta-poem__kana">やくもたつ いずもやえがき つまごみに やえがきつくる そのやえがきを</p>
+      <p class="uta-poem__meaning">幾重にも雲の立ちのぼる出雲に、妻と籠るための八重垣をつくる。その八重垣よ。</p>
+      <p class="uta-poem__by">
+        <span>須佐之男命</span><span class="sep" aria-hidden="true">・</span><span>『古事記』</span></p>
+      
+      
+      <p class="uta-poem__note">『古事記』によれば、八岐大蛇（やまたのおろち）を退治した須佐之男命が、櫛名田比売（くしなだひめ）を妻に迎え、出雲の須賀に宮を建てたときに詠んだと伝えられる歌です。「八雲立つ」は出雲にかかる枕詞。わき立つ雲のさまが、そのまま土地の名を呼び起こします。</p>
+      
+      <p class="uta-poem__note">一首のなかで「八重垣」が三度くり返されます。宮のまわりに幾重にもわき立つ雲を、妻を守るための垣に見立てる——喜びが、同じことばを何度も口にさせる。理屈より先に、声の弾みが伝わってくる歌です。</p>
+      
+      <p class="uta-poem__note">三十一音のかたちで詠まれた最初の歌と伝えられ、『古今和歌集』の仮名序も和歌のはじまりをこの歌に求めています。千年つづく和歌の川の、これがみなもとです。</p>
+      
+    </div>
+
+    
+    <p class="uta-hero__actions">
+      <a class="btn btn--onDeep" href="/yachiyo/uta/ichiran/">全441首の一覧と解説</a>
+    </p>
+  </div>
+</section>
+
+
+<section class="section uta-about">
+  <div class="wrap">
+    <header class="section__head">
+      <span class="shimenawa-rule" aria-hidden="true"></span>
+      <h2 class="section__title">和歌とは</h2>
+    </header>
+
+    <div class="uta-about__body">
+      <p>和歌とは、五・七・五・七・七の五つの句、あわせて三十一音でつくる、千年をこえる歴史をもつ日本の定型詩です。四季のうつろいや、人の心の機微を、この短い器に映しつづけてきました。</p><p>三十一音は「みそひともじ」とも呼ばれます。はじめの五・七・五を上句（かみのく）、あとの七・七を下句（しものく）と呼び、上句で情景を差し出し、下句で心を返す――そんな呼吸で読むと、一首の世界がひらけてきます。</p><p>句と句のあいだには、意味や調子の切れめが生まれることがあります。これを句切れといい、切れる位置によって初句切れ・二句切れなどと呼びます。句切れは、短い詩に間（ま）と余韻をもたらします。</p><p>和歌には、枕詞や掛詞といった、限られた音数に多くを託すための技法が育まれました。技巧は誇示のためではなく、言い尽くせない思いを、静かに深く響かせるためにあります。</p>
+    </div>
+
+    <div class="uta-form" role="img"
+         aria-label="和歌のかたち。初句五音・二句七音・三句五音（上句）、四句七音・結句七音（下句）。">
+      
+      <div class="uta-form__ku" data-part="上句">
+        <div class="uta-form__count">5</div>
+        <div class="uta-form__ku-name">初句</div>
+      </div>
+      
+      <div class="uta-form__ku" data-part="上句">
+        <div class="uta-form__count">7</div>
+        <div class="uta-form__ku-name">二句</div>
+      </div>
+      
+      <div class="uta-form__ku" data-part="上句">
+        <div class="uta-form__count">5</div>
+        <div class="uta-form__ku-name">三句</div>
+      </div>
+      
+      <div class="uta-form__ku" data-part="下句">
+        <div class="uta-form__count">7</div>
+        <div class="uta-form__ku-name">四句</div>
+      </div>
+      
+      <div class="uta-form__ku" data-part="下句">
+        <div class="uta-form__count">7</div>
+        <div class="uta-form__ku-name">結句</div>
+      </div>
+      
+    </div>
+    <p class="uta-form__legend" aria-hidden="true">
+      <span class="dot dot--kami"></span>上句（かみのく）
+      <span class="dot dot--shimo"></span>下句（しものく）
+    </p>
+  </div>
+</section>
+
+
+<section class="section section--alt uta-about">
+  <div class="wrap">
+    <header class="section__head">
+      <span class="shimenawa-rule" aria-hidden="true"></span>
+      <h2 class="section__title">和歌の読みかた</h2>
+      <p class="section__lead">たった三十一音に奥行きを生む、いくつかの仕掛け。名前を知ると、歌がぐっと立体になります。</p>
+    </header>
+
+    <div class="uta-devices">
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">枕詞<span class="uta-device__reading">まくらことば</span></h3>
+        <p class="uta-device__def">特定の語の前に置いて調子を整え、その語を導く、多くは五音の慣用的な修飾句。それ自体は訳さないことが多い。</p>
+        <p class="uta-device__ex"><b>「あしひきの」→「山」</b>　「あしひきの山鳥の尾の…」のように「あしひきの」が「山」を導く。ほかに「ちはやぶる」→「神」、「たらちねの」→「母」など。</p>
+      </article>
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">序詞<span class="uta-device__reading">じょことば</span></h3>
+        <p class="uta-device__def">ある語句を導くために置かれる、多くは七音以上の前置きの言葉。慣用的な枕詞と違い、作者が情景に即して自由に作る。</p>
+        <p class="uta-device__ex"><b>「あしひきの山鳥の尾のしだり尾の」→「ながながし」</b>　柿本人麻呂の歌で、山鳥の長く垂れた尾の描写が、下句の「ながながし夜」を導く序詞になっている。</p>
+      </article>
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">掛詞<span class="uta-device__reading">かけことば</span></h3>
+        <p class="uta-device__def">同じ音に二つの意味を重ねて、一つの言葉に二重の世界を持たせる技法。</p>
+        <p class="uta-device__ex"><b>「まつ」＝待つ・松／「あき」＝秋・飽き</b>　小野小町「花の色は移りにけりないたづらに我が身世にふるながめせしまに」では、「ふる」に降る・経る、「ながめ」に長雨・眺めを掛ける。</p>
+      </article>
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">縁語<span class="uta-device__reading">えんご</span></h3>
+        <p class="uta-device__def">一首のなかに、意味のうえで関わり合う語を意図して散りばめ、言葉どうしを響き合わせる技法。</p>
+        <p class="uta-device__ex"><b>「唐衣（からころも）」に伴う「着る・なる・褄（つま）・張る」</b>　在原業平「から衣きつつなれにしつましあればはるばるきぬる旅をしぞ思ふ」は、衣に縁のある語を連ね、各句の頭に「かきつばた」を詠み込む。</p>
+      </article>
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">本歌取り<span class="uta-device__reading">ほんかどり</span></h3>
+        <p class="uta-device__def">よく知られた古歌（本歌）の語句や趣向を取り入れ、新たな一首に古歌の余情を重ね響かせる技法。</p>
+        <p class="uta-device__ex"><b>藤原定家「駒とめて袖うちはらふかげもなし佐野のわたりの雪の夕暮」</b>　万葉集の長奥麻呂「苦しくも降り来る雨か三輪の崎狭野の渡りに家もあらなくに」を本歌とし、雨を雪の夕暮に転じている。</p>
+      </article>
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">体言止め<span class="uta-device__reading">たいげんどめ</span></h3>
+        <p class="uta-device__def">一首の末尾を名詞（体言）で結び、言い切らずに余情を残す技法。</p>
+        <p class="uta-device__ex"><b>藤原定家「見わたせば花も紅葉もなかりけり浦の苫屋の秋の夕暮」</b>　結句を名詞「秋の夕暮」で止め、静けさと余韻を残す。新古今和歌集「三夕（さんせき）の歌」の一つ。</p>
+      </article>
+      
+      <article class="uta-device">
+        <h3 class="uta-device__term">句切れ<span class="uta-device__reading">くぎれ</span></h3>
+        <p class="uta-device__def">一首の途中で、意味や調子がひとまず切れる箇所。切れる位置により初句切れ・二句切れなどと呼ぶ。</p>
+        <p class="uta-device__ex"><b>持統天皇「春すぎて夏来にけらし白妙の衣ほすてふ天の香具山」</b>　「夏来にけらし」で意味がいったん切れる二句切れ。前半で夏の到来を言い、後半で香具山の白い衣へ転じる。</p>
+      </article>
+      
+    </div>
+  </div>
+</section>
+
+
+<section class="section uta-about">
+  <div class="wrap">
+    <header class="section__head">
+      <span class="shimenawa-rule" aria-hidden="true"></span>
+      <h2 class="section__title">選りすぐりの、数首</h2>
+      <p class="section__lead">歌集からとくに像の鮮明なものを。声に出して、ゆっくり読んでみてください。</p>
+    </header>
+
+    <div class="uta-featured">
+      
+      <article class="uta-piece">
+        <div class="uta-piece__poem"><div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">あさみどり</span><span class="gyosei__ku gyosei__ku--i1">澄みわたりたる</span><span class="gyosei__ku gyosei__ku--i2">大空の</span><span class="gyosei__ku gyosei__ku--i0">広きをおのが</span><span class="gyosei__ku gyosei__ku--i1">心ともがな</span></div>
+<p class="visually-hidden">あさみどり澄みわたりたる大空の広きをおのが心ともがな</p></div>
+        <div class="uta-piece__text">
+          <p class="uta-piece__kana">あさみどり すみわたりたる おおぞらの ひろきをおのが こころともがな</p>
+          <p class="uta-piece__meaning">浅みどりに澄みわたった大空――あの広さを、そのまま自分の心にしたいものだ。</p>
+          <p class="uta-piece__by">
+            <span>明治天皇</span><span class="sep" aria-hidden="true">・</span><span>御製</span><span class="sep" aria-hidden="true">・</span><span>明治37年</span></p>
+          <p class="uta-piece__note">浅みどりに澄みわたった大空を仰ぎ、その果てのない広さを、そのまま自分の心にできたら――と願う一首。景（そら）から心へと視線が静かに折り返してゆく。題は「天」。空の澄みを理想の心に重ねた、明治天皇の御製。</p>
+        </div>
+      </article>
+      
+      <article class="uta-piece">
+        <div class="uta-piece__poem"><div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">いまの世に</span><span class="gyosei__ku gyosei__ku--i1">おもひくらべて</span><span class="gyosei__ku gyosei__ku--i2">石上</span><span class="gyosei__ku gyosei__ku--i0">ふりにしふみを</span><span class="gyosei__ku gyosei__ku--i1">読むぞたのしき</span></div>
+<p class="visually-hidden">いまの世におもひくらべて石上ふりにしふみを読むぞたのしき</p></div>
+        <div class="uta-piece__text">
+          <p class="uta-piece__kana">いまのよに おもいくらべて いそのかみ ふりにしふみを よむぞたのしき</p>
+          <p class="uta-piece__meaning">いまの世のことと思い比べながら、古い書物を読む――それがなんとも楽しい。</p>
+          <p class="uta-piece__by">
+            <span>明治天皇</span><span class="sep" aria-hidden="true">・</span><span>御製</span><span class="sep" aria-hidden="true">・</span><span>明治37年</span></p>
+          <p class="uta-piece__note">今の世のありようと思い比べながら、古い書物のページを繰る。その時間が「読むぞたのしき」と、素直な喜びで結ばれる。「石上（いそのかみ）」は「ふる」にかかる枕詞で、「古りにし文」＝古い書物を導いている。学びを楽しむ、明治天皇の御製。題は「読書」。</p>
+        </div>
+      </article>
+      
+      <article class="uta-piece">
+        <div class="uta-piece__poem"><div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">国民の</span><span class="gyosei__ku gyosei__ku--i1">うへやすかれと</span><span class="gyosei__ku gyosei__ku--i2">おもふのみ</span><span class="gyosei__ku gyosei__ku--i0">わが世にたえぬ</span><span class="gyosei__ku gyosei__ku--i1">思なりけり</span></div>
+<p class="visually-hidden">国民のうへやすかれとおもふのみわが世にたえぬ思なりけり</p></div>
+        <div class="uta-piece__text">
+          <p class="uta-piece__kana">くにたみの うえやすかれと おもうのみ わがよにたえぬ おもいなりけり</p>
+          <p class="uta-piece__meaning">国の人々が安らかであってほしい――ただそれだけが、私の生涯を通じて絶えることのない思いである。</p>
+          <p class="uta-piece__by">
+            <span>明治天皇</span><span class="sep" aria-hidden="true">・</span><span>御製</span><span class="sep" aria-hidden="true">・</span><span>明治38年</span></p>
+          <p class="uta-piece__note">国の人々が安らかであってほしい。ただそれだけを、生涯を通じて思いつづける、と詠まれる。飾りのない言葉で、願いが「たえぬ思」として静かに置かれている。世の安らかさを祈る、明治天皇の御製。題は「思」。</p>
+        </div>
+      </article>
+      
+      <article class="uta-piece">
+        <div class="uta-piece__poem"><div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">散りぬべき</span><span class="gyosei__ku gyosei__ku--i1">時知りてこそ</span><span class="gyosei__ku gyosei__ku--i2">世の中の</span><span class="gyosei__ku gyosei__ku--i0">花も花なれ</span><span class="gyosei__ku gyosei__ku--i1">人も人なれ</span></div>
+<p class="visually-hidden">散りぬべき時知りてこそ世の中の花も花なれ人も人なれ</p></div>
+        <div class="uta-piece__text">
+          <p class="uta-piece__kana">ちりぬべき ときしりてこそ よのなかの はなもはななれ ひともひとなれ</p>
+          <p class="uta-piece__meaning">散るべき時を知っていてこそ、世の中の花も花として美しく、人も人として美しい。</p>
+          <p class="uta-piece__by">
+            <span>細川ガラシャ</span><span class="sep" aria-hidden="true">・</span><span>辞世</span><span class="sep" aria-hidden="true">・</span><span>1600年（慶長5年）没</span></p>
+          <p class="uta-piece__note">散るべき時を心得ていてこそ、花は花として、人は人として美しい、と詠む。散る花に人のいさぎよさを重ねた辞世で、「花も花なれ／人も人なれ」の対句が、静かな決意を響かせる。関ヶ原の戦いに先立つ慶長5年（1600）夏、石田三成方の人質要求を拒み、大坂の屋敷で死を選んだ細川ガラシャの一首と伝わる。</p>
+        </div>
+      </article>
+      
+      <article class="uta-piece">
+        <div class="uta-piece__poem"><div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">露と落ち</span><span class="gyosei__ku gyosei__ku--i1">露と消えにし</span><span class="gyosei__ku gyosei__ku--i2">我が身かな</span><span class="gyosei__ku gyosei__ku--i0">なにわの事も</span><span class="gyosei__ku gyosei__ku--i1">夢の又夢</span></div>
+<p class="visually-hidden">露と落ち露と消えにし我が身かななにわの事も夢の又夢</p></div>
+        <div class="uta-piece__text">
+          <p class="uta-piece__kana">つゆとおち つゆときえにし わがみかな なにわのことも ゆめのまたゆめ</p>
+          <p class="uta-piece__meaning">露のように生まれ、露のように消えていくわが身であることよ。難波（大坂）での栄華も、夢のなかの夢だった。</p>
+          <p class="uta-piece__by">
+            <span>豊臣秀吉</span><span class="sep" aria-hidden="true">・</span><span>辞世</span><span class="sep" aria-hidden="true">・</span><span>1598年（慶長3年）没</span></p>
+          <p class="uta-piece__note">露のように生まれ、露のように消えてゆくわが身よ、とうたう。難波（大坂）で極めた栄華も、いま振り返れば「夢の又夢」――。露と夢の比喩が、栄華のはかなさを静かに包む。百姓の子から天下人にのぼった豊臣秀吉が、伏見城で詠んだと伝わる辞世。</p>
+        </div>
+      </article>
+      
+      <article class="uta-piece">
+        <div class="uta-piece__poem"><div class="gyosei" aria-hidden="true"><span class="gyosei__ku gyosei__ku--i0">極楽も</span><span class="gyosei__ku gyosei__ku--i1">地獄も先は</span><span class="gyosei__ku gyosei__ku--i2">有明の</span><span class="gyosei__ku gyosei__ku--i0">月の心に</span><span class="gyosei__ku gyosei__ku--i1">懸かる雲なし</span></div>
+<p class="visually-hidden">極楽も地獄も先は有明の月の心に懸かる雲なし</p></div>
+        <div class="uta-piece__text">
+          <p class="uta-piece__kana">ごくらくも じごくもさきは ありあけの つきのこころに かかるくもなし</p>
+          <p class="uta-piece__meaning">極楽へ行くも地獄へ行くも、その先は有明の月のようなもの。わたしの心には、かかる雲ひとつない。</p>
+          <p class="uta-piece__by">
+            <span>上杉謙信</span><span class="sep" aria-hidden="true">・</span><span>辞世</span><span class="sep" aria-hidden="true">・</span><span>1578年（天正6年）没</span></p>
+          <p class="uta-piece__note">極楽へ行くも地獄へ行くも、行き着く先は有明の月のようなもの。わが心には、かかる雲ひとつない――と、澄みきった境地をうたう。明け方の空に残る月に、迷いのない心を重ねた辞世として伝わる。越後の武将・上杉謙信の作とされるが、後世の仮託とみる説もある。</p>
+        </div>
+      </article>
+      
+    </div>
+  </div>
+</section>
+
+
+<section class="section uta-cta">
+  <div class="wrap uta-cta__inner">
+    <h2 class="uta-cta__title">きょうの一首は、きょうだけのもの。</h2>
+    <p class="uta-cta__lead">トップページでは、その日の日付にあわせて歌集から一首をお出ししています。あすはあすの歌が待っています。</p>
+    <div class="uta-cta__actions">
+      <a class="btn btn--onDeep" href="/yachiyo/#gyosei">きょうの一首を見る</a>
+      <a class="btn btn--ghostDeep" href="/yachiyo/uta/ichiran/">全首の一覧と解説</a>
+      <a class="btn btn--ghostDeep" href="/yachiyo/about/">このサイトについて</a>
+    </div>
+    <p class="uta-cta__meta">歌集には、明治天皇の御製から市井の人の辞世まで四百四十一首。すべて没後七十年を過ぎた、独立した二つ以上の出典で本文を確かめた歌だけを収めています。</p>
+  </div>
+</section>
+
+
+  </main>
+
+  
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <div class="footer__brand">
+        <span class="footer__brand-ja">八千代</span>
+        <span class="footer__brand-en">-yachiyo-</span>
+        <p class="footer__tagline">日出づる国の、ちいさな発見。</p>
+      </div>
+      <nav class="footer__nav" aria-label="フッターナビゲーション">
+        <p class="footer__nav-head">めぐる</p>
+        <a href="/yachiyo/"
+           >ホーム</a>
+        <a href="/yachiyo/kizuki/"
+           >きづきの、すべて</a>
+        <a href="/yachiyo/uta/"
+           aria-current="page">うた</a>
+        <a href="/yachiyo/about/"
+           >このサイトについて</a>
+        
+        <a href="https://github.com/hokorobi88room/yachiyo/issues" rel="noopener">連絡窓口</a>
+      </nav>
+      <nav class="footer__nav" aria-label="カテゴリ">
+        <p class="footer__nav-head">きづき</p>
+        
+        <a href="/yachiyo/category/kurashi/"
+           >くらしの美</a>
+        
+        <a href="/yachiyo/category/keshiki/"
+           >風景と旅</a>
+        
+        <a href="/yachiyo/category/kotoba/"
+           >ことばと物語</a>
+        
+        <a href="/yachiyo/category/pop/"
+           >ポップと青春</a>
+        
+        <a href="/yachiyo/category/ima/"
+           >いまの日本</a>
+        
+        <a href="/yachiyo/category/waza/"
+           >技と職人</a>
+        
+      </nav>
+    </div>
+    
+    <p class="footer__copy">© <span data-year>2026</span> 八千代 -yachiyo-</p>
+    <div class="footer__fuji" aria-hidden="true"></div>
+  </footer>
+
+  
+  <a href="#main" class="to-top" data-to-top aria-label="ページの先頭へ戻る"></a>
+
+  <script src="/yachiyo/static/js/sky.js?v=edf40f4e" defer></script>
+  <script src="/yachiyo/static/js/main.js?v=80adceb1" defer></script>
+  
+  
+</body>
+</html>

@@ -1,0 +1,52 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <!-- 記事サムネ：朝いちばんの鳥居をくぐる（風景と旅）
+       朝日の玉＋鳥居の稜線。放射光線は使わず、グラデーションと光暈だけで朝を描く -->
+  <defs>
+    <linearGradient id="asa-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B2A4A" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#E8674A" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#FDF6E9" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="asa-halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F5B841" stop-opacity="0.40"/>
+      <stop offset="55%" stop-color="#F5B841" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="asa-core" cx="50%" cy="45%" r="60%">
+      <stop offset="0" stop-color="#F8CB63"/>
+      <stop offset="55%" stop-color="#F5B841"/>
+      <stop offset="100%" stop-color="#E8674A"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 生成りの地 -->
+  <rect width="640" height="360" fill="#FDF6E9"/>
+  <!-- 夜明け前ののこりの空 -->
+  <rect width="640" height="360" fill="url(#asa-sky)"/>
+
+  <!-- 朝日（額束の真後ろ） -->
+  <circle cx="320" cy="176" r="132" fill="url(#asa-halo)"/>
+  <circle cx="320" cy="176" r="52" fill="url(#asa-core)"/>
+
+  <!-- 遠景の丘の稜線（松葉・ごく淡く） -->
+  <path d="M0 268 Q120 236 232 262 Q330 284 430 254 Q540 222 640 250 L640 360 L0 360 Z"
+        fill="#5A7247" fill-opacity="0.10"/>
+
+  <!-- 鳥居の稜線（藍のシルエット・細身で端正に） -->
+  <g fill="#1B2A4A" fill-opacity="0.62">
+    <path d="M196 150 Q320 168 444 150 L436 165 Q320 184 204 165 Z"/>
+    <path d="M206 168 Q320 186 434 168 L434 178 Q320 196 206 178 Z"/>
+    <rect x="313" y="184" width="14" height="24" rx="1.5"/>
+    <rect x="242" y="212" width="156" height="10" rx="2"/>
+    <path d="M254 178 L268 178 L272 330 L250 330 Z"/>
+    <path d="M372 178 L386 178 L390 330 L368 330 Z"/>
+  </g>
+
+  <!-- 参道の砂利にこぼれた光の粒 -->
+  <g fill="#F5B841" fill-opacity="0.55">
+    <circle cx="318" cy="344" r="3.4"/>
+    <circle cx="296" cy="336" r="2.2"/>
+    <circle cx="344" cy="334" r="2.6"/>
+    <circle cx="330" cy="352" r="1.8"/>
+  </g>
+</svg>

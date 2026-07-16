@@ -1,0 +1,42 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <!-- 記事サムネ：光をとおす鉋屑の薄さ（技と職人）
+       光にかざした鉋屑の螺旋。ほとんど白鼠と山吹の透けだけで構成し、余白を大きく取る -->
+  <defs>
+    <linearGradient id="kanna-kuzu-a" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0" stop-color="#F5B841" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0.10"/>
+    </linearGradient>
+    <linearGradient id="kanna-kuzu-b" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0" stop-color="#E8674A" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#E8674A" stop-opacity="0.04"/>
+    </linearGradient>
+    <radialGradient id="kanna-hikari" cx="26%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#F5B841" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="#FDF6E9"/>
+  <!-- 作業場の窓から差す光 -->
+  <rect width="640" height="360" fill="url(#kanna-hikari)"/>
+
+  <!-- 削られた板の面（白鼠のなめらかな帯） -->
+  <path d="M0 292 Q320 268 640 296 L640 360 L0 360 Z" fill="#EDE8DE"/>
+  <path d="M0 292 Q320 268 640 296" fill="none" stroke="#3A3226" stroke-opacity="0.14" stroke-width="2"/>
+
+  <!-- 鉋屑の螺旋（透ける薄さ＝重ねても向こうが見える） -->
+  <path d="M118 258 C118 176 196 132 268 154 C330 172 342 244 288 268 C240 288 206 246 236 214 C258 190 300 200 306 230"
+        fill="none" stroke="url(#kanna-kuzu-a)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M150 262 C150 192 214 156 274 176 C324 192 332 246 292 262"
+        fill="none" stroke="url(#kanna-kuzu-b)" stroke-width="16" stroke-linecap="round"/>
+
+  <!-- もう一枚、細くのびた屑 -->
+  <path d="M366 266 C424 218 462 226 494 190 C520 160 546 168 566 148"
+        fill="none" stroke="#F5B841" stroke-opacity="0.30" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- 木の目（松葉のごく細い線） -->
+  <g fill="none" stroke="#5A7247" stroke-opacity="0.20" stroke-width="1.6" stroke-linecap="round">
+    <path d="M40 318 Q320 300 600 320"/>
+    <path d="M40 334 Q320 318 600 336"/>
+  </g>
+</svg>

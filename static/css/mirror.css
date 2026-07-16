@@ -1,0 +1,83 @@
+/* ==========================================================================
+   八千代 -yachiyo-  |  mirror.css
+   八咫鏡（ヒーローの主役／CONCEPT §8）。
+
+   ★ 鏡は「映すだけ」。波紋・ことば・ホバー演出は持たない
+     （波紋があると水面に見えてしまい、鏡でなくなるため廃止した）。
+
+   ★ 鏡そのものは1枚の絵（static/img/mirror.webp）。
+     作者支給の透過PNG（public/mirror.png）が原本。鏡が上・縄と紙垂が下の構図で、
+     二重リングと磨かれた青銅の面まで絵にある。
+     その鏡面の円の上に、mirror.js が映り込み（桜の花びら）を重ねる。
+
+   絵の中の鏡面の位置（実測）:
+     画像 659 × 907 / 円盤の中心 (49.99%, 35.91%) / 鏡面の直径 = 画像幅の 85.1%
+     この3つの数字で .mirror__scene を絵の鏡面にぴったり重ねている。
+
+   JSフック：[data-mirror] / [data-mirror-scene]
+   ========================================================================== */
+
+.mirror{
+  position: relative;
+  z-index: 2;
+  /* 絵の中の鏡面は画像幅の 85.1%。器 356px → 鏡面 ≈ 303px
+     （CONCEPT §8 の基準 280px より一回り大きいが、新しい絵の縁が細いぶん
+       全体の存在感は旧と同等。実表示で確認済み） */
+  width: 356px;
+  max-width: 74vw;
+  aspect-ratio: 659 / 907;    /* mirror.webp と同じ比率 */
+  flex: 0 0 auto;
+  pointer-events: none;       /* 触らせない（映すだけの飾り） */
+}
+
+/* 鏡の絵そのもの */
+.mirror__face{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--iro-sumi) 26%, transparent));
+}
+
+/* --------------------------------------------------------------------------
+   映り込み（mirror.js が手前の花びらの像を生成・配置する）
+   -------------------------------------------------------------------------- */
+.mirror__scene{
+  position: absolute;
+  left: 49.99%;              /* 絵の中の円盤の中心 */
+  top: 35.91%;
+  width: 85.1%;              /* 絵の中の鏡面の直径（画像幅に対して） */
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 花びらの像。位置・大きさ・不透明度は JS が書く（transform / width / opacity）。
+   金属の面に映るので、少しにじませ、彩度をやや落として“反射”に見せる。 */
+.mirror__img{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.mirror__img--petal{
+  filter: blur(0.5px) saturate(0.85) brightness(1.04);
+  mix-blend-mode: multiply;   /* 金属地に桜色が乗る（浮いた光ではなく“映り”に見せる） */
+}
+
+/* --------------------------------------------------------------------------
+   レスポンシブ：モバイルは鏡面 ≈ 180px（CONCEPT §8）
+   -------------------------------------------------------------------------- */
+@media (max-width: 599.98px){
+  .mirror{ width: 230px; }   /* 鏡面 ≈ 180px（CONCEPT §8） */
+}
+
+/* 横向き・低い画面では、鏡が画面高を食い切らないように */
+@media (max-height: 560px) and (orientation: landscape){
+  .mirror{ width: min(384px, 78vw, 46svh); }
+}

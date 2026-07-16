@@ -1,0 +1,11 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" color="#3A3226">
+  <!-- 鳥居（風景と旅・小型） -->
+  <g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 16 Q32 9 56 16"/>   <!-- 笠木 -->
+    <path d="M13 22 H51"/>          <!-- 島木 -->
+    <path d="M20 22 L18 54"/>       <!-- 左柱 -->
+    <path d="M44 22 L46 54"/>       <!-- 右柱 -->
+    <path d="M15 35 H49"/>          <!-- 貫 -->
+    <path d="M32 22 V35"/>          <!-- 額束 -->
+  </g>
+</svg>

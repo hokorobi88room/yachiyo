@@ -1,0 +1,27 @@
+<svg viewBox="0 0 200 108" xmlns="http://www.w3.org/2000/svg">
+  <!-- 地平から昇る朝日（半円＋光暈／放射光線は描かない）。記事見出しのオーナメント用。
+       viewBox 下辺 y=100 を地平線に見立て、上半分だけを見せる。 -->
+  <defs>
+    <radialGradient id="sunh-halo" cx="50%" cy="100%" r="72%">
+      <stop offset="0" stop-color="#F5B841" stop-opacity="0.42"/>
+      <stop offset="55%" stop-color="#F5B841" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sunh-core" cx="50%" cy="92%" r="72%">
+      <stop offset="0" stop-color="#F8CB63"/>
+      <stop offset="55%" stop-color="#F5B841"/>
+      <stop offset="100%" stop-color="#E8674A"/>
+    </radialGradient>
+    <!-- 地平線から上だけを見せるクリップ -->
+    <clipPath id="sunh-horizon"><rect x="0" y="0" width="200" height="100"/></clipPath>
+  </defs>
+  <g clip-path="url(#sunh-horizon)">
+    <!-- ハロ（光暈） -->
+    <circle cx="100" cy="100" r="98" fill="url(#sunh-halo)"/>
+    <circle cx="100" cy="100" r="66" fill="#F5B841" fill-opacity="0.12"/>
+    <!-- 朝日の玉（地平にかかる半円） -->
+    <circle cx="100" cy="100" r="46" fill="url(#sunh-core)"/>
+  </g>
+  <!-- 地平線のごく淡い一本 -->
+  <line x1="8" y1="100" x2="192" y2="100" stroke="#E8674A" stroke-opacity="0.35" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

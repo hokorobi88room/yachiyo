@@ -1,0 +1,427 @@
+/* ==========================================================================
+   八千代 -yachiyo-  |  uta.css
+   「和歌を読む」LP（/uta/）の固有スタイル。
+   共通の骨格・部品は base.css（.wrap/.section/.section--alt/.section__head 等）を
+   再利用し、色・寸法は tokens.css の変数のみ（昼夜は --ui-night が自動で混ぜる）。
+   縦書きの歌 .gyosei は hero.css と同じ見た目をこのページ用に持つ（自己完結）。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   縦書きの歌（hero.css の .gyosei と同一の組み。ここでも使えるように再掲）
+   五七五七七を「一句＝一列」に立て、右から左へ。字下げは 0・1・2・0・1。
+   -------------------------------------------------------------------------- */
+.gyosei{
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+.gyosei__ku{
+  writing-mode: vertical-rl;
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  font-size: clamp(1.2rem, 0.95rem + 1.5vw, 1.7rem);
+  letter-spacing: var(--ls-mid);
+  line-height: 1;
+  font-feature-settings: normal;
+  font-kerning: none;
+  text-align: start;
+  white-space: nowrap;
+  color: var(--text);
+}
+.gyosei__ku--i0{ padding-top: 0; }
+.gyosei__ku--i1{ padding-top: 1em; }
+.gyosei__ku--i2{ padding-top: 2em; }
+
+/* --------------------------------------------------------------------------
+   1. 導入（ヒーロー）── 開幕の一首を大きく
+   -------------------------------------------------------------------------- */
+.uta-hero{
+  padding-block: clamp(3rem, 4rem + 4vw, 6rem);
+  text-align: center;
+}
+.uta-hero__sun{ margin-inline: auto; margin-bottom: 1.25rem; }
+.uta-hero__catch{
+  font-family: var(--font-mincho);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-head);
+  letter-spacing: var(--ls-head);
+  color: var(--heading);
+  text-wrap: balance;
+}
+.uta-hero__lead{
+  max-width: var(--measure);
+  margin: 1.1rem auto 0;
+  color: var(--text-soft);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-ui);
+}
+/* 開幕の一首：やや大きく、間をたっぷり */
+.uta-hero__poem{
+  margin-top: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+}
+.uta-hero__poem .gyosei__ku{
+  font-size: clamp(1.35rem, 1.05rem + 1.9vw, 2rem);
+}
+.uta-poem__kana{
+  margin-top: 1rem;
+  font-size: var(--fs-small);
+  letter-spacing: 0.2em;
+  color: var(--text-soft);
+}
+.uta-poem__meaning{
+  max-width: var(--measure);
+  margin: 0.9rem auto 0;
+  color: var(--text);
+  line-height: var(--lh-ui);
+}
+.uta-poem__by{
+  margin-top: 0.6rem;
+  font-size: var(--fs-small);
+  letter-spacing: 0.1em;
+  color: var(--text-soft);
+}
+.uta-poem__by .sep{ margin-inline: 0.5em; opacity: 0.6; }
+
+/* --------------------------------------------------------------------------
+   2. 和歌とは ── 本文＋五七五七七の図
+   -------------------------------------------------------------------------- */
+.uta-about__body{
+  max-width: var(--measure);
+  margin-inline: auto;
+  color: var(--text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+.uta-about__body p{ margin-block: 1.3em; }
+.uta-about__body p:first-child{ margin-top: 0; }
+
+/* 五七五七七の図。5つの句を横に並べ、上句／下句でうっすら括る。
+   並び順は**縦書きの読み方に倣い右から左**（初句が右端・結句が左端）。
+   DOM は初句→結句の読み順のままにして、見た目だけ row-reverse で返す。 */
+.uta-form{
+  margin: clamp(2rem, 1.5rem + 2vw, 3rem) auto 0;
+  max-width: 760px;
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap-reverse;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.uta-form__ku{
+  flex: 1 1 5.5rem;
+  min-width: 4.5rem;
+  padding: 0.9rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+  text-align: center;
+}
+/* 上句（初句〜三句）と下句（四句・結句）を、上辺の色で見分ける */
+.uta-form__ku[data-part="上句"]{ box-shadow: inset 0 3px 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+.uta-form__ku[data-part="下句"]{ box-shadow: inset 0 3px 0 color-mix(in srgb, var(--primary) 60%, transparent); }
+.uta-form__count{
+  font-family: var(--font-mincho);
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--heading);
+}
+.uta-form__ku-name{
+  margin-top: 0.4rem;
+  font-size: var(--fs-small);
+  color: var(--text-soft);
+}
+.uta-form__legend{
+  margin-top: 1rem;
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--text-soft);
+}
+.uta-form__legend .dot{
+  display: inline-block; width: 0.7em; height: 0.7em; border-radius: 2px;
+  margin-inline: 0.6em 0.25em; vertical-align: -0.05em;
+}
+.uta-form__legend .dot--kami{ background: color-mix(in srgb, var(--accent) 70%, transparent); }
+.uta-form__legend .dot--shimo{ background: color-mix(in srgb, var(--primary) 60%, transparent); }
+
+/* --------------------------------------------------------------------------
+   3. 技法 ── 枕詞・掛詞… のカード
+   -------------------------------------------------------------------------- */
+.uta-devices{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+  max-width: 980px;
+  margin-inline: auto;
+}
+.uta-device{
+  padding: clamp(1.1rem, 0.9rem + 1vw, 1.5rem);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+.uta-device__term{
+  font-family: var(--font-mincho);
+  font-size: var(--fs-h3);
+  color: var(--heading);
+}
+.uta-device__reading{
+  margin-inline-start: 0.6em;
+  font-size: var(--fs-small);
+  letter-spacing: 0.12em;
+  color: var(--text-soft);
+}
+.uta-device__def{
+  margin-top: 0.6rem;
+  color: var(--text);
+  line-height: var(--lh-ui);
+}
+.uta-device__ex{
+  margin-top: 0.85rem;
+  padding: 0.6rem 0.9rem;
+  border-inline-start: 3px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  background: var(--bg-alt);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  line-height: var(--lh-ui);
+}
+.uta-device__ex b{
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  color: var(--heading);
+}
+
+/* --------------------------------------------------------------------------
+   4. 精選 ── 一首ずつ、歌＋鑑賞
+   -------------------------------------------------------------------------- */
+.uta-featured{
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 2rem + 3vw, 4rem);
+  max-width: 900px;
+  margin-inline: auto;
+}
+.uta-piece{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  align-items: center;
+}
+.uta-piece__poem{
+  display: flex;
+  justify-content: center;
+  padding-block: 0.5rem;
+}
+.uta-piece__text{ min-width: 0; }
+.uta-piece__kana{
+  font-size: var(--fs-small);
+  letter-spacing: 0.18em;
+  color: var(--text-soft);
+}
+.uta-piece__meaning{
+  margin-top: 0.7rem;
+  color: var(--text);
+  line-height: var(--lh-body);
+}
+.uta-piece__by{
+  margin-top: 0.6rem;
+  font-size: var(--fs-small);
+  letter-spacing: 0.1em;
+  color: var(--text-soft);
+}
+.uta-piece__by .sep{ margin-inline: 0.5em; opacity: 0.6; }
+.uta-piece__note{
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  color: var(--text);
+  line-height: var(--lh-body);
+}
+.uta-piece__note::before{
+  content: "鑑賞";
+  display: inline-block;
+  margin-inline-end: 0.7em;
+  padding: 0.05em 0.6em;
+  border-radius: var(--radius-pill);
+  background: var(--nature);
+  color: var(--text-on-deep);
+  font-size: var(--fs-small);
+  letter-spacing: 0.1em;
+  vertical-align: 0.1em;
+}
+
+/* --------------------------------------------------------------------------
+   5. しめくくり ── 藍地の帯（今日の一首・歌集へ）
+   -------------------------------------------------------------------------- */
+.uta-cta{
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  color: var(--text-on-deep);
+  background-color: var(--deep);
+  background-image:
+    radial-gradient(140% 92% at 50% 122%,
+      color-mix(in srgb, var(--primary) 30%, transparent) 0%, transparent 58%),
+    linear-gradient(180deg, var(--deep) 0%,
+      color-mix(in srgb, var(--iro-ai-2) 70%, var(--deep)) 100%);
+}
+.uta-cta__inner{
+  position: relative; z-index: 1;
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+.uta-cta__title{
+  font-family: var(--font-mincho);
+  font-size: var(--fs-h2);
+  color: var(--text-on-deep);
+}
+.uta-cta__lead{
+  margin-top: 0.9rem;
+  line-height: var(--lh-ui);
+  opacity: 0.9;
+}
+.uta-cta__actions{
+  margin-top: 1.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1rem;
+  justify-content: center;
+}
+/* 藍地の上のボタン：山吹地に墨（tokens の CTA と同じ考え） */
+.uta-cta .btn--onDeep{
+  background: var(--accent);
+  color: var(--iro-sumi);
+}
+.uta-cta .btn--ghostDeep{
+  background: transparent;
+  color: var(--text-on-deep);
+  border-color: color-mix(in srgb, var(--text-on-deep) 45%, transparent);
+}
+.uta-cta__meta{
+  margin-top: 1.4rem;
+  font-size: var(--fs-small);
+  opacity: 0.72;
+}
+
+/* --------------------------------------------------------------------------
+   6. レスポンシブ ── 960px 以上で「歌｜鑑賞」を2カラムに
+   -------------------------------------------------------------------------- */
+@media (min-width: 720px){
+  .uta-devices{ grid-template-columns: repeat(2, 1fr); }
+  /* 技法は7種＝奇数。最後の1枚が左半分に取り残されないよう、単独なら中央に収める。 */
+  .uta-devices > .uta-device:last-child:nth-child(odd){
+    grid-column: 1 / -1;
+    max-width: calc(50% - var(--gap) / 2);
+    margin-inline: auto;
+  }
+  .uta-piece{
+    grid-template-columns: minmax(7rem, 9rem) 1fr;
+  }
+  /* 偶数番は歌を右に置いて律動を出す */
+  .uta-piece:nth-child(even){ grid-template-columns: 1fr minmax(7rem, 9rem); }
+  .uta-piece:nth-child(even) .uta-piece__poem{ order: 2; }
+}
+
+/* モーション配慮：藍帯の星は base.css の全体規則で止まる（追加は不要） */
+
+/* --------------------------------------------------------------------------
+   印刷（設計書 第7部 7-H）。和歌こそ紙に刷って手元に置く人がいる。
+   飾り（オーナメント・CTA・作歌フォームの操作系）は落とし、
+   縦書きの歌が途中で改ページされないようにする。
+   -------------------------------------------------------------------------- */
+@media print {
+  .sun-ornament,
+  .shimenawa-rule,
+  .uta-cta__actions,
+  .uta-form__count { display: none !important; }
+
+  body { background: #fff; }
+
+  /* 歌のかたまり（精選歌・実例）はページ途中で切らない */
+  .uta-piece,
+  .uta-featured,
+  .uta-device { break-inside: avoid; }
+
+  /* 縦書きの歌は墨色・ゆったりした行間で刷る */
+  .uta-piece__poem .gyosei,
+  .uta-hero__poem .gyosei {
+    color: #000;
+    column-gap: 1.2em;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   うたの一覧（/uta/ichiran/）。441首を、軽い文字組の行で全部並べる。
+   歌そのものが解説記事へのリンク。
+   -------------------------------------------------------------------------- */
+.ichiran__toc{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: center;
+  margin: 0 auto 1.4rem;
+  font-size: var(--fs-small);
+}
+.ichiran__toc a{ color: var(--link); text-underline-offset: 0.3em; }
+.ichiran__count{ opacity: 0.55; margin-left: 0.35em; font-size: 0.85em; }
+
+.ichiran__group{ max-width: 44rem; margin-inline: auto; }
+.ichiran__kind{
+  margin: 2.6rem 0 0.9rem;
+  font-size: var(--fs-h3);
+  letter-spacing: 0.08em;
+}
+.ichiran__list{ list-style: none; margin: 0; padding: 0; }
+.ichiran__item{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15em 0.9em;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.6em 0.1em;
+  border-bottom: 1px solid var(--rule);
+}
+.ichiran__poem{
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.7;
+}
+a.ichiran__poem:hover,
+a.ichiran__poem:focus-visible{
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+.ichiran__by{
+  color: var(--text-soft);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+.ichiran__foot{
+  margin-top: 2.6rem;
+  text-align: center;
+  font-size: var(--fs-small);
+}
+.ichiran__foot a{ color: var(--link); }
+
+@media print{
+  .ichiran__item{ break-inside: avoid; }
+}
+
+/* 開幕の一首の直下：歌集への大きな入り口 */
+.uta-hero__actions{
+  margin-top: clamp(1.6rem, 1rem + 2vw, 2.4rem);
+  text-align: center;
+}
+
+/* 開幕の一首の背景・鑑賞（段落で語る。訳より一段やわらかい文字色） */
+.uta-poem__note{
+  max-width: var(--measure);
+  margin: 1.1rem auto 0;
+  color: var(--text-soft);
+  line-height: var(--lh-body);
+  text-align: left;
+}
+.uta-poem__note:first-of-type{ margin-top: 1.6rem; }

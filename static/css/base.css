@@ -1,0 +1,1126 @@
+/* ==========================================================================
+   八千代 -yachiyo-  |  base.css
+   共通の骨格＋部品ライブラリ。色・寸法は tokens.css の変数のみを使う。
+   （CONCEPT §3-§9 / base.html の DOM・クラス契約に準拠）
+   装飾SVGは static/svg/ 配下（このファイルからは ../svg/）を参照。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. リセット & 土台
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;     /* 「トップへ戻る」を静かに */
+  /* sticky ヘッダーぶんを見込んでアンカー先を止める（スキップリンク／#latest 等）*/
+  scroll-padding-top: calc(var(--header-h, 71px) + 12px);
+  /* スクロールバーの幅を常に確保：エントランスのスクロールロックで横に跳ねない。
+     both-edges で左右両側に確保し、スクロールバーぶん内容が左に寄るのを防ぐ（＝左右対称）。*/
+  scrollbar-gutter: stable both-edges;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;               /* フッターを最下部へ */
+  flex-direction: column;
+  overflow-x: clip;            /* 横スクロールを禁止（八千代の流れ対策） */
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-gothic);
+  font-size: var(--fs-body);
+  line-height: var(--lh-ui);
+  -webkit-font-smoothing: antialiased;
+  /* 和文の約物を詰める（「、」「。」「・」の前後の空きを自然に）*/
+  font-feature-settings: "palt" 1;
+}
+
+/* 画像・メディアは器からはみ出さない */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  display: block;
+}
+img {
+  height: auto;
+}
+
+/* ボタン・フォーム要素は書体を継承 */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* 見出しは明朝でやわらかく（CONCEPT §4） */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  line-height: var(--lh-head);
+  letter-spacing: var(--ls-head);
+  color: var(--text);
+  text-wrap: balance;          /* 2行になった見出しの最終行に1文字だけ残さない */
+}
+h1 { font-size: var(--fs-h1); color: var(--heading); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+
+p { margin: 0; text-wrap: pretty; }
+
+/* アンカー先がヘッダーに隠れないように（見出し・セクション・main）*/
+:target,
+main[id],
+section[id],
+h2[id],
+h3[id] {
+  scroll-margin-top: calc(var(--header-h, 71px) + 12px);
+}
+
+/* リンク：既定は濃い茜、hover で下線がはっきりする（CONCEPT §3） */
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: color var(--dur-ui) var(--ease),
+              text-decoration-color var(--dur-ui) var(--ease);
+}
+a:hover {
+  color: var(--primary-strong);
+  text-decoration-color: currentColor;
+}
+
+/* 見やすいフォーカスリング（色は --focus に一元化：非テキスト3:1を満たす） */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+/* <main tabindex="-1"> にプログラム的にフォーカスしたときはリングを出さない */
+.site-main:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* テキスト選択は朝の山吹 */
+::selection {
+  background: var(--accent);
+  color: var(--iro-sumi);
+}
+
+/* --------------------------------------------------------------------------
+   2. レイアウト primitives（.wrap / .section）
+   -------------------------------------------------------------------------- */
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  /* ノッチ端末の横向きでも内容が丸角に食われない */
+  padding-inline:
+    max(var(--pad-inline), env(safe-area-inset-left))
+    max(var(--pad-inline), env(safe-area-inset-right));
+}
+
+.site-main {
+  flex: 1 0 auto;              /* 本文が短くてもフッターを下端へ */
+}
+
+.section {
+  padding-block: var(--section-pad);
+}
+.section--alt {
+  background: var(--bg-alt);   /* 交互の背景で「間」をつくる */
+}
+
+.section__head {
+  max-width: var(--measure);
+  margin-inline: auto;
+  margin-bottom: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  text-align: center;
+}
+.section__title {
+  font-family: var(--font-mincho);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  line-height: var(--lh-head);
+  letter-spacing: var(--ls-head);
+  color: var(--heading);
+  text-wrap: balance;
+}
+.section__lead {
+  margin-top: 0.9rem;
+  color: var(--text-soft);
+  font-size: var(--fs-lead);
+  line-height: var(--lh-ui);
+}
+
+/* --------------------------------------------------------------------------
+   3. ヘッダー（sticky・生成りの半透明・下端に極細しめ縄）
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  backdrop-filter: blur(10px) saturate(1.1);
+  /* 高さは変えず、影だけで“浮き”を出す（本文のレイアウトシフトを起こさない）*/
+  transition: box-shadow var(--dur-ui) var(--ease);
+}
+[data-header].is-scrolled {
+  box-shadow: var(--shadow-soft);
+}
+/* 透明効果を減らす設定の人には、半透明＋blur をやめて不透明で出す */
+@media (prefers-reduced-transparency: reduce) {
+  .site-header {
+    background: var(--bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.site-header__inner {
+  position: relative;          /* ドロップダウン／ナビパネルのアンカー */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  min-height: 64px;
+  padding-block: 0.6rem;
+}
+
+/* 極細のしめ縄ライン（下境界／CONCEPT §9） */
+.site-header__shimenawa {
+  height: 7px;
+  background: url("../svg/shimenawa-line.svg") repeat-x center;
+  background-size: auto 100%;
+  opacity: 0.9;
+  pointer-events: none;
+}
+/* 夜は藁の色が沈むので、少しだけ明るく起こす */
+.is-dark .site-header__shimenawa { filter: brightness(1.35); }
+
+/* ブランド */
+.brand {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.15;
+  text-decoration: none;
+  color: var(--text);
+}
+.brand__ja {
+  font-family: var(--font-mincho);
+  font-size: 1.4rem;
+  letter-spacing: var(--ls-head);
+  color: var(--heading);
+  transition: color var(--dur-ui) var(--ease);
+}
+.brand__en {
+  font-size: 0.7rem;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--text-soft);
+  transition: color var(--dur-ui) var(--ease);
+}
+/* ロゴにもホバー反応を（子要素が自前の色を持つので子側で受ける） */
+.brand:hover .brand__ja,
+.brand:focus-visible .brand__ja { color: var(--primary-strong); }
+.brand:hover .brand__en,
+.brand:focus-visible .brand__en { color: var(--text); }
+
+/* ハンバーガー（600px 未満のみ。main.js が .has-js-nav を付けるまで出さない）*/
+.nav-burger {
+  display: none;
+  align-items: center;
+  gap: 0.45em;
+  min-height: 44px;
+  padding: 0.4em 0.6em;
+  background: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color var(--dur-ui) var(--ease),
+              color var(--dur-ui) var(--ease);
+}
+.nav-burger:hover { border-color: var(--primary); color: var(--primary-strong); }
+.nav-burger__label {
+  font-size: 0.85rem;
+  letter-spacing: var(--ls-head);
+}
+.nav-burger__bars {
+  position: relative;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+.nav-burger__bars::before,
+.nav-burger__bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform var(--dur-ui) var(--ease);
+}
+.nav-burger__bars::before { top: -6px; }
+.nav-burger__bars::after  { top: 6px; }
+[data-nav-burger][aria-expanded="true"] .nav-burger__bars { background: transparent; }
+[data-nav-burger][aria-expanded="true"] .nav-burger__bars::before { transform: translateY(6px) rotate(45deg); }
+[data-nav-burger][aria-expanded="true"] .nav-burger__bars::after  { transform: translateY(-6px) rotate(-45deg); }
+
+/* ナビ */
+.nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+}
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;                 /* 指のタップ領域 */
+  padding: 0.4em 0.2em;
+  color: var(--text);
+  font-size: 0.98rem;
+  text-decoration: none;
+  transition: color var(--dur-ui) var(--ease);
+}
+.nav__link:hover,
+.nav__link:focus-visible {
+  color: var(--primary-strong);
+}
+/* 現在地（aria-current）は色＋下線で示す */
+.nav__link[aria-current="page"] {
+  color: var(--primary-strong);
+  box-shadow: inset 0 -2px 0 0 var(--primary);
+}
+
+/* きづき（カテゴリ）ドロップダウン */
+.nav__group {
+  position: relative;
+}
+.nav__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.nav__caret {
+  width: 0;
+  height: 0;
+  border-left: 0.32em solid transparent;
+  border-right: 0.32em solid transparent;
+  border-top: 0.36em solid currentColor;
+  transition: transform var(--dur-ui) var(--ease);
+}
+[data-nav-toggle][aria-expanded="true"] .nav__caret {
+  transform: rotate(180deg);
+}
+
+.nav__menu {
+  position: absolute;
+  inset-block-start: calc(100% + 10px);
+  /* 右寄せ：中央寄せだと画面外へはみ出す（左端が負になる）*/
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  transform: none;
+  z-index: calc(var(--z-header) + 1);
+  min-width: min(220px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+.nav__menu[hidden] { display: none; }   /* [hidden] を確実に優先 */
+.nav__menu li { margin: 0; }
+
+.nav__menu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  min-height: 44px;                 /* 指のタップ領域 */
+  padding: 0.55em 0.7em;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background var(--dur-ui) var(--ease),
+              color var(--dur-ui) var(--ease);
+}
+.nav__menu-link:hover,
+.nav__menu-link:focus-visible {
+  background: var(--bg-alt);
+  color: var(--primary-strong);
+}
+.nav__menu-link[aria-current="page"] {
+  background: var(--bg-alt);
+  color: var(--primary-strong);
+  font-weight: 500;
+}
+.nav__menu-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+/* 記事本数のバッジ（S3 のカテゴリ一覧でも使う） */
+.pill--count {
+  margin-inline-start: auto;
+  padding: 0.1em 0.6em;
+  border-radius: var(--radius-pill);
+  background: var(--bg-alt);
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   4. パンくず（S3 の記事／カテゴリで使う）
+   -------------------------------------------------------------------------- */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2em 0.5em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-small);
+  color: var(--text-soft);
+}
+.breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.breadcrumb__item + .breadcrumb__item::before {
+  content: "›";
+  color: var(--rule);
+  color: color-mix(in srgb, var(--text-soft) 55%, transparent);
+}
+.breadcrumb__item a {
+  color: var(--text-soft);
+  text-decoration: none;
+}
+.breadcrumb__item a:hover {
+  color: var(--primary-strong);
+  text-decoration: underline;
+}
+.breadcrumb__item[aria-current="page"] {
+  color: var(--text);
+}
+
+/* --------------------------------------------------------------------------
+   5. フッター（藍地・最下部に富士の稜線罫）
+   -------------------------------------------------------------------------- */
+.site-footer {
+  position: relative;
+  margin-top: var(--section-pad);
+  padding-block: clamp(3rem, 2rem + 4vw, 5rem) 0;
+  background: var(--deep);
+  color: var(--text-on-deep);
+}
+
+.site-footer__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.5rem, 1rem + 3vw, 2.75rem);
+}
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.footer__brand-ja {
+  font-family: var(--font-mincho);
+  font-size: 1.35rem;
+  letter-spacing: var(--ls-head);
+}
+.footer__brand-en {
+  font-size: 0.75rem;
+  letter-spacing: var(--ls-label);
+  opacity: 0.75;
+}
+.footer__tagline {
+  margin-top: 0.4rem;
+  font-size: var(--fs-small);
+  line-height: var(--lh-ui);
+  opacity: 0.85;
+}
+
+.footer__nav {
+  display: flex;
+  flex-direction: column;
+}
+.footer__nav-head {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mincho);
+  font-size: 0.95rem;
+  letter-spacing: var(--ls-head);
+  color: var(--accent);       /* 見出しに山吹の朝色を一点 */
+}
+.footer__nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;           /* 指のタップ領域 */
+  padding-block: 0.35em;
+  color: var(--text-on-deep);
+  font-size: 0.95rem;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: color var(--dur-ui) var(--ease), opacity var(--dur-ui) var(--ease);
+}
+.footer__nav a:hover,
+.footer__nav a:focus-visible {
+  color: var(--accent);
+  opacity: 1;
+}
+.footer__nav a[aria-current="page"] {
+  color: var(--accent);
+  opacity: 1;
+}
+/* 藍地の上のフォーカスリングは山吹で（濃い茜だと沈む） */
+.site-footer :focus-visible {
+  outline-color: var(--accent);
+}
+
+/* 著作権表記：区切り罫が本文カラムと揃うよう .wrap と同じ幅に収める */
+.footer__copy {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+  margin-inline: auto;
+  padding-top: 1.5rem;
+  padding-inline: var(--pad-inline);
+  border-top: 1px solid color-mix(in srgb, var(--text-on-deep) 18%, transparent);
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--text-on-deep);
+  opacity: 0.7;
+}
+
+/* 富士の稜線を罫線代わりに、フッターの最下部へ（CONCEPT §5.1-e） */
+.site-footer .footer__fuji {
+  height: 56px;
+  margin-top: 1.5rem;
+  /* 描いてもらった富士の稜線（一本の線）。地は藍なので、線だけを浮かせる */
+  background: url("../img/fuji-ridge.webp") no-repeat center bottom;
+  background-size: 100% auto;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. トップへ戻る（右下 fixed の小さな鳥居ボタン）
+   -------------------------------------------------------------------------- */
+.to-top {
+  position: fixed;
+  right: clamp(16px, 4vw, 32px);
+  bottom: clamp(16px, 4vw, 32px);
+  right: calc(clamp(16px, 4vw, 32px) + env(safe-area-inset-right));
+  bottom: calc(clamp(16px, 4vw, 32px) + env(safe-area-inset-bottom));
+  z-index: calc(var(--z-header) - 10);
+  width: clamp(44px, 10vw, 52px);
+  height: clamp(44px, 10vw, 52px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  /* 既定は不可視・非操作（visibility:hidden なのでタブ順にも入らない）。
+     表示は main.js が .is-visible を付けて行う */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity var(--dur-ui) var(--ease),
+              transform var(--dur-ui) var(--ease),
+              box-shadow var(--dur-ui) var(--ease);
+}
+.to-top[hidden] { display: none; }   /* [hidden] を使う場合も確実に消えるように */
+/* torii.svg を茜で（マスクで着色） */
+.to-top::before {
+  content: "";
+  width: 55%;
+  height: 55%;
+  background: var(--primary);
+  -webkit-mask: url("../svg/torii.svg") center / contain no-repeat;
+  mask: url("../svg/torii.svg") center / contain no-repeat;
+}
+.to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.to-top.is-visible:hover {
+  transform: translateY(-3px);   /* ホバーで少し浮く */
+  box-shadow: var(--shadow-lift);
+}
+
+/* --------------------------------------------------------------------------
+   7. 記事カード（.card-grid / .post-card …）
+   -------------------------------------------------------------------------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;        /* 〜599px: 1列 */
+  gap: var(--gap);
+}
+/* 記事が少ない（1〜2件）グリッドは、カード幅を絞って中央寄せ＝左端に取り残さない。
+   件数の多いトップ/一覧の列組みには影響しない（このクラスが付くときだけ）。 */
+.card-grid.card-grid--sparse {
+  display: flex;                 /* auto-fit グリッドより確実に中央化できる flex に */
+  flex-wrap: wrap;
+  justify-content: center;
+}
+/* grow させると1枚が行いっぱいに広がり中央寄せが効かない。伸縮させず明示幅で中央へ。 */
+.card-grid.card-grid--sparse > .post-card {
+  flex: 0 0 auto;
+  width: min(340px, 100%);
+}
+
+.post-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;            /* カード自身が縦の器（旧: リンクが器だった）*/
+  height: 100%;
+  background: var(--card);           /* 白鼠（CONCEPT §3「カード背景」）*/
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: box-shadow var(--dur-ui) var(--ease),
+              transform var(--dur-ui) var(--ease);
+}
+.post-card:hover,
+.post-card:focus-within {
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-4px);
+}
+
+/* カードは「タイトルだけがリンク名」。カード全面のクリックは ::after のオーバーレイが担う。
+   これで支援技術に読み上げられるリンク名が抜粋まで飲み込まず、
+   カード内のカテゴリピルも独立したリンクとして押せる（stretched-link）。 */
+.post-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+.post-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+/* リンクのピルだけをオーバーレイより手前に出す（カテゴリページへ飛ばすため）。
+   カテゴリ一覧のカードではピルは <span>（同じカテゴリへのリンクは無意味なので）。
+   そこまで手前に出すと、カード全面クリックの死角になるだけなので a: に限定する。 */
+a.post-card__cat {
+  position: relative;
+  z-index: 2;
+}
+
+.post-card__thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--bg-alt);
+}
+/* サムネ無しカードの装飾フォールバック。
+   カテゴリのアイコンを --cat-icon で受け取り（テンプレート側で style に指定）、
+   さらにカード位置で光の角度を少しずつ変えて「同じ絵が6枚並ぶ」のを避ける。 */
+.post-card__thumb--blank {
+  display: grid;
+  place-items: center;
+  --thumb-angle: 80% 16%;
+  --thumb-tilt: 158deg;
+  background:
+    radial-gradient(120% 150% at var(--thumb-angle),
+      color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 12%, transparent) 34%,
+      transparent 64%),
+    linear-gradient(var(--thumb-tilt), var(--surface) 0%, var(--bg-alt) 100%);
+}
+.post-card__thumb--blank::after {
+  content: "";
+  width: 26%;
+  aspect-ratio: 1;
+  background-image: var(--cat-icon, url("../svg/sun.svg"));
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+}
+/* 光の差し込み方を4パターンで循環させる（並べたときの単調さをほどく） */
+.card-grid > :nth-child(4n + 2) .post-card__thumb--blank { --thumb-angle: 22% 20%; --thumb-tilt: 200deg; }
+.card-grid > :nth-child(4n + 3) .post-card__thumb--blank { --thumb-angle: 62% 78%; --thumb-tilt: 130deg; }
+.card-grid > :nth-child(4n + 4) .post-card__thumb--blank { --thumb-angle: 12% 74%; --thumb-tilt: 340deg; }
+
+.post-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1 0 auto;
+  padding: clamp(1rem, 0.8rem + 1vw, 1.35rem);
+}
+
+.post-card__cat {
+  align-self: flex-start;
+}
+.post-card__title {
+  font-family: var(--font-mincho);
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  line-height: var(--lh-head);
+  color: var(--text);
+  text-wrap: balance;
+  transition: color var(--dur-ui) var(--ease);
+}
+.post-card:hover .post-card__title,
+.post-card:focus-within .post-card__title {
+  color: var(--primary-strong);
+}
+.post-card__date {
+  font-size: var(--fs-small);
+  color: var(--text-soft);
+}
+.post-card__excerpt {
+  color: var(--text-soft);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  /* 3行で省略（標準の line-clamp も併記して将来の -webkit- 廃止に備える） */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   8. ボタン（.btn / .btn--primary / .btn--ghost / .btn-torii）
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0.7em 1.5em;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-gothic);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-ui) var(--ease),
+              color var(--dur-ui) var(--ease),
+              border-color var(--dur-ui) var(--ease),
+              box-shadow var(--dur-ui) var(--ease),
+              transform var(--dur-ui) var(--ease),
+              filter var(--dur-ui) var(--ease);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn--primary {
+  background: var(--cta-bg);   /* 朝＝濃い茜、夜＝山吹。どちらも文字と AA を満たす */
+  color: var(--cta-fg);
+  box-shadow: var(--shadow-soft);
+}
+.btn--primary:hover {
+  box-shadow: var(--shadow-lift);
+  filter: saturate(1.06) brightness(1.03);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--rule-strong);   /* 押せるものの輪郭は 3:1 を満たす色で */
+}
+.btn--ghost:hover {
+  border-color: var(--primary);
+  color: var(--primary-strong);
+  background: var(--bg-alt);
+}
+
+/* 鳥居アイコン付きテキストボタン（前後記事ナビ等） */
+.btn-torii {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  min-height: 44px;
+  padding: 0.4em 0.2em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-gothic);
+  font-weight: 500;
+  color: var(--link);
+  text-decoration: none;
+  transition: color var(--dur-ui) var(--ease);
+}
+.btn-torii::before {
+  content: "";
+  width: 1.15em;
+  height: 1.15em;
+  flex: 0 0 auto;
+  background: currentColor;            /* torii を文字色で */
+  -webkit-mask: url("../svg/torii.svg") center / contain no-repeat;
+  mask: url("../svg/torii.svg") center / contain no-repeat;
+  transition: transform var(--dur-ui) var(--ease);
+}
+.btn-torii:hover { color: var(--primary-strong); }
+.btn-torii--next { flex-direction: row-reverse; }   /* アイコンを右へ */
+.btn-torii--prev:hover::before { transform: translateX(-3px); }
+.btn-torii--next:hover::before { transform: translateX(3px); }
+
+/* --------------------------------------------------------------------------
+   9. タグ / チップ（.tag / .cat-chip）
+   -------------------------------------------------------------------------- */
+/* 松葉色の丸ピル（カテゴリタグ・記事カードのカテゴリ） */
+.tag,
+.post-card__cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.28em 0.85em;
+  border-radius: var(--radius-pill);
+  background: var(--nature);
+  color: var(--text-on-deep);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+a.tag:hover,
+a.post-card__cat:hover {
+  filter: brightness(1.06);
+}
+/* リンクのタグは見た目（26px の塗りピル）を変えずに当たり判定だけ44pxへ広げる。
+   カード内のカテゴリピルも同じリンクなので同じ扱いにする（見た目が同じものは同じ触り心地に）。 */
+a.tag,
+a.post-card__cat {
+  position: relative;
+}
+a.tag::after,
+a.post-card__cat::after {
+  content: "";
+  position: absolute;
+  inset-block: -9px;
+  inset-inline: 0;
+}
+
+/* カテゴリチップ：丸いアイコン枠＋下に名前（トップ/ナビ） */
+.cat-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: min(9rem, 100%);
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+}
+.cat-chip:focus-visible { outline: none; }   /* リングはアイコン側で表現 */
+
+.cat-chip__icon {
+  display: grid;
+  place-items: center;
+  width: clamp(64px, 16vw, 84px);
+  height: clamp(64px, 16vw, 84px);
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow var(--dur-ui) var(--ease),
+              outline-color var(--dur-ui) var(--ease),
+              transform var(--dur-ui) var(--ease);
+  outline: 2px solid transparent;    /* hover 時に茜へ */
+  outline-offset: 3px;
+}
+.cat-chip__icon img,
+.cat-chip__icon svg {
+  width: 52%;
+  height: 52%;
+  object-fit: contain;   /* 絵は正方形ではない。指定しないと丸枠の中で引き伸ばされて歪む */
+}
+.cat-chip:hover .cat-chip__icon {
+  outline-color: var(--primary);     /* hover でリング＝茜 */
+  box-shadow: var(--shadow-card);
+  transform: translateY(-3px);
+}
+.cat-chip:focus-visible .cat-chip__icon {
+  outline-color: var(--focus);       /* フォーカスリングは --focus に統一 */
+  box-shadow: var(--shadow-card);
+  transform: translateY(-3px);
+}
+.cat-chip__name {
+  font-family: var(--font-mincho);
+  font-size: 1rem;
+  letter-spacing: var(--ls-head);
+  color: var(--text);
+}
+
+/* --------------------------------------------------------------------------
+   10. 和の飾り（.shimenawa-rule / .sun-ornament）
+   -------------------------------------------------------------------------- */
+/* 水平しめ縄の飾り罫（見出し脇・区切り／CONCEPT §9） */
+.shimenawa-rule {
+  display: inline-block;             /* <span> のまま inline だと幅・高さが効かない */
+  vertical-align: middle;
+  /* 描いてもらった実物のしめ縄（藁の撚り・紙垂・藁の房）。1400×319 = 4.39:1 */
+  width: clamp(150px, 30vw, 260px);
+  aspect-ratio: 1400 / 319;
+  height: auto;
+  background: url("../img/shimenawa.webp") center / contain no-repeat;
+}
+/* 夜は藁の色が沈むので、少しだけ明るく起こす */
+.is-dark .shimenawa-rule { filter: brightness(1.3); }
+/* 朝日の小さなオーナメント（地平から昇る半円＋光暈／放射光線は描かない） */
+.sun-ornament {
+  display: inline-block;
+  width: clamp(52px, 12vw, 72px);
+  height: clamp(30px, 7vw, 42px);
+  background: url("../svg/sun-half.svg") center bottom / contain no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   11. ユーティリティ
+   -------------------------------------------------------------------------- */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.u-center {
+  text-align: center;
+}
+
+/* スキップリンク（キーボード/スクリーンリーダー：本文へ直行） */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -56px;
+  z-index: calc(var(--z-entrance) + 1);
+  padding: 0.6em 1.1em;
+  background: var(--deep);
+  color: var(--text-on-deep);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: top var(--dur-ui) var(--ease);
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   12. レスポンシブ（960px / 600px で段組みを畳む）
+   -------------------------------------------------------------------------- */
+@media (min-width: 600px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }   /* 600〜959px: 2列 */
+  .site-footer__inner { grid-template-columns: 1.6fr 1fr 1fr; }
+}
+@media (min-width: 960px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); }   /* 960px〜: 3列 */
+  .site-footer__inner { grid-template-columns: 2fr 1fr 1fr; }
+}
+
+/* 600px 未満：ハンバーガーでナビを畳む（折返しでヘッダーが肥大するのを防ぐ）*/
+@media (max-width: 599.98px) {
+  .site-header__inner { gap: 0.5rem 1rem; }
+  .brand__ja { font-size: 1.25rem; }
+
+  /* JS が有効なときだけ畳む（JS 無効ならナビはそのまま並んで使える）*/
+  .site-header.has-js-nav .nav-burger { display: inline-flex; }
+  .site-header.has-js-nav .nav {
+    position: absolute;
+    inset-block-start: calc(100% + 6px);
+    inset-inline: auto 0;
+    z-index: calc(var(--z-header) + 1);
+    width: min(300px, calc(100vw - 32px));
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.15rem;
+    padding: 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+  }
+  .site-header.has-js-nav .nav[hidden] { display: none; }
+  .site-header.has-js-nav .nav__link { padding-inline: 0.7em; }
+  .site-header.has-js-nav .nav__group { position: static; }
+  /* パネルの中ではカテゴリ一覧をそのまま展開（重ねない＝画面外へ出ない）*/
+  .site-header.has-js-nav .nav__menu {
+    position: static;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    margin-block-start: 2px;
+    padding: 0 0 0 0.6rem;
+    background: none;
+    border: none;
+    border-inline-start: 1px solid var(--rule);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* JS 無効時の保険：ドロップダウンはヘッダーの内側ボックスを基準に右寄せ
+     （トグル基準だと min-width 分だけ画面左外へはみ出す）*/
+  .site-header:not(.has-js-nav) .nav__group { position: static; }
+  .site-header:not(.has-js-nav) .nav__menu {
+    inset-inline: auto 0;
+    width: min(280px, calc(100vw - 32px));
+  }
+}
+
+/* --------------------------------------------------------------------------
+   13. Windows ハイコントラスト（forced-colors）
+       mask + background-color で塗ったアイコンは強制配色下で消えるため補う
+   -------------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .to-top::before,
+  .btn-torii::before,
+  .post-nav__dir::before,
+  .hero__cue::before {
+    background: CanvasText;
+  }
+  .to-top,
+  .hero__cue { border: 1px solid CanvasText; }
+  .nav__link[aria-current="page"] { text-decoration: underline; }
+}
+
+/* --------------------------------------------------------------------------
+   14. 印刷（読み物として紙に落とせるように：演出・固定要素は落とす）
+   -------------------------------------------------------------------------- */
+@media print {
+  html { scroll-behavior: auto; }
+  body {
+    background: #fff;
+    color: #000;
+    display: block;
+  }
+  .entrance,
+  .to-top,
+  .skip-link,
+  .site-header,
+  .site-footer,
+  .nav,
+  .nav-burger,
+  .hero,
+  .home-word,
+  .mirror,
+  .post-share,
+  .post-nav {
+    display: none !important;
+  }
+  .section { padding-block: 0.5rem; }
+  .post-card {
+    box-shadow: none;
+    border: 1px solid #999;
+    break-inside: avoid;
+  }
+  a { color: #000; text-decoration: underline; }
+  /* 参照できるよう本文リンクの URL を添える */
+  .post-body a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    word-break: break-all;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   15. モーション配慮（prefers-reduced-motion で静止フォールバック）
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  /* ホバーの浮き・移動を無効化して静止に */
+  .btn:hover,
+  .post-card:hover,
+  .post-card:focus-within,
+  .to-top.is-visible:hover,
+  .cat-chip:hover .cat-chip__icon,
+  .cat-chip:focus-visible .cat-chip__icon {
+    transform: none;
+  }
+  .btn-torii:hover::before { transform: none; }
+}
+
+/* --------------------------------------------------------------------------
+   12. 朝／夜の配色切替（ヘッダー）
+   既定は時刻に合わせた自動。押すと手動になるが**保存しない**。
+   次の日の出／日没をまたいだ時点で自動に戻る（sky.js）。
+   -------------------------------------------------------------------------- */
+/* JS が動かない環境では、押しても何も起きない飾りボタンになる（フォーカスも受けてしまう）。
+   sky.js が起動時に <html> へ .has-theme-js を付けるので、無いときは丸ごと消す。 */
+html:not(.has-theme-js) .theme-toggle { display: none; }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0.35em 0.9em;
+  background: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  font-size: var(--fs-small);
+  letter-spacing: var(--ls-head);
+  cursor: pointer;
+  transition: border-color var(--dur-ui) var(--ease),
+              color var(--dur-ui) var(--ease);
+}
+.theme-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary-strong);
+}
+/* 印：朝は満ちた丸（日）、夜は欠けた丸（月）。--night で連続に欠けていく。 */
+.theme-toggle__mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: inset calc(var(--night) * 7px) 0 0 0 var(--bg);
+}

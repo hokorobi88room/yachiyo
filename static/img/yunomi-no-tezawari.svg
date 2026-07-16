@@ -1,0 +1,46 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <!-- 記事サムネ：湯呑みの手ざわりに気づいた朝（くらしの美）
+       器の輪郭と、立ちのぼる湯気。線画＋淡い塗りで、静かな台所の朝を -->
+  <defs>
+    <linearGradient id="yunomi-hada" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#EDE8DE"/>
+      <stop offset="100%" stop-color="#E3DCCE"/>
+    </linearGradient>
+    <radialGradient id="yunomi-asa" cx="78%" cy="16%" r="64%">
+      <stop offset="0" stop-color="#F5B841" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="#FDF6E9"/>
+  <rect width="640" height="360" fill="url(#yunomi-asa)"/>
+
+  <!-- 湯気（ゆるい曲線を三本） -->
+  <g fill="none" stroke="#3A3226" stroke-opacity="0.16" stroke-width="2.4" stroke-linecap="round">
+    <path d="M282 158 C266 132 300 118 284 92 C274 76 292 64 288 50"/>
+    <path d="M328 152 C312 124 348 110 332 84 C322 68 340 58 336 44"/>
+    <path d="M374 162 C360 140 390 126 378 104"/>
+  </g>
+
+  <!-- 湯呑み（少しいびつ。左右非対称の輪郭で手仕事の気配） -->
+  <path d="M242 186 Q244 268 268 296 Q320 316 376 294 Q396 264 394 186 Z"
+        fill="url(#yunomi-hada)"/>
+  <!-- 釉薬のたまり（片側に寄る） -->
+  <path d="M244 200 Q252 264 272 292 Q292 302 306 300 Q276 254 266 194 Z"
+        fill="#1B2A4A" fill-opacity="0.10"/>
+  <!-- 器の輪郭線 -->
+  <path d="M242 186 Q244 268 268 296 Q320 316 376 294 Q396 264 394 186"
+        fill="none" stroke="#3A3226" stroke-opacity="0.55" stroke-width="3" stroke-linejoin="round"/>
+  <!-- 口縁 -->
+  <ellipse cx="318" cy="186" rx="76" ry="17" fill="#FDF6E9" stroke="#3A3226" stroke-opacity="0.55" stroke-width="3"/>
+  <!-- お茶の面 -->
+  <ellipse cx="318" cy="188" rx="64" ry="12.5" fill="#5A7247" fill-opacity="0.28"/>
+
+  <!-- 卓の上の小皿（余白に、そっと一枚） -->
+  <ellipse cx="500" cy="286" rx="62" ry="17" fill="#EDE8DE"/>
+  <ellipse cx="500" cy="284" rx="62" ry="17" fill="none" stroke="#3A3226" stroke-opacity="0.30" stroke-width="2.4"/>
+  <ellipse cx="500" cy="282" rx="34" ry="9" fill="#E8674A" fill-opacity="0.20"/>
+
+  <!-- 卓の縁 -->
+  <path d="M0 312 H640" fill="none" stroke="#3A3226" stroke-opacity="0.14" stroke-width="2"/>
+</svg>

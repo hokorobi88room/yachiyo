@@ -1,0 +1,57 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <!-- 記事サムネ：多国籍な商店街のいい匂い（いまの日本）
+       庇（ひさし）がならぶ通り。色はばらばらのまま、となりあっている＝混ざっても薄まらない -->
+  <defs>
+    <linearGradient id="tako-yuge" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#EDE8DE" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#EDE8DE" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="#FDF6E9"/>
+
+  <!-- 通りの奥ゆき（白鼠のうすい床） -->
+  <path d="M0 268 H640 V360 H0 Z" fill="#EDE8DE" fill-opacity="0.7"/>
+
+  <!-- 湯気・匂いのたちのぼり -->
+  <g fill="url(#tako-yuge)">
+    <ellipse cx="128" cy="212" rx="42" ry="60"/>
+    <ellipse cx="392" cy="204" rx="36" ry="54"/>
+  </g>
+
+  <!-- 庇の列（松葉／茜／山吹／藍。等間隔にせず、幅も高さも少しずつ変える） -->
+  <g>
+    <path d="M32 176 H160 L146 214 H46 Z" fill="#5A7247" fill-opacity="0.80"/>
+    <rect x="46" y="214" width="100" height="54" fill="#5A7247" fill-opacity="0.16"/>
+
+    <path d="M176 160 H286 L276 202 H186 Z" fill="#E8674A" fill-opacity="0.82"/>
+    <rect x="186" y="202" width="90" height="66" fill="#E8674A" fill-opacity="0.14"/>
+
+    <path d="M302 184 H428 L416 220 H314 Z" fill="#F5B841" fill-opacity="0.88"/>
+    <rect x="314" y="220" width="102" height="48" fill="#F5B841" fill-opacity="0.18"/>
+
+    <path d="M444 166 H602 L590 208 H456 Z" fill="#1B2A4A" fill-opacity="0.72"/>
+    <rect x="456" y="208" width="134" height="60" fill="#1B2A4A" fill-opacity="0.12"/>
+  </g>
+
+  <!-- 店先にならぶもの（豆・野菜・果物の抽象。丸だけで） -->
+  <g>
+    <circle cx="70" cy="254" r="9" fill="#E8674A" fill-opacity="0.6"/>
+    <circle cx="92" cy="256" r="7" fill="#F5B841" fill-opacity="0.7"/>
+    <circle cx="112" cy="254" r="8" fill="#5A7247" fill-opacity="0.6"/>
+    <circle cx="210" cy="252" r="8" fill="#F5B841" fill-opacity="0.7"/>
+    <circle cx="232" cy="255" r="6" fill="#1B2A4A" fill-opacity="0.4"/>
+    <circle cx="344" cy="254" r="7" fill="#5A7247" fill-opacity="0.6"/>
+    <circle cx="366" cy="253" r="9" fill="#E8674A" fill-opacity="0.5"/>
+    <circle cx="492" cy="252" r="8" fill="#F5B841" fill-opacity="0.6"/>
+    <circle cx="516" cy="255" r="6" fill="#E8674A" fill-opacity="0.5"/>
+  </g>
+
+  <!-- 通りに渡した細い紐（旗のかわり。にぎやかにしすぎない） -->
+  <path d="M0 128 Q320 152 640 122" fill="none" stroke="#3A3226" stroke-opacity="0.18" stroke-width="1.8"/>
+  <g fill="#EDE8DE">
+    <rect x="120" y="136" width="12" height="16" rx="2"/>
+    <rect x="300" y="145" width="12" height="16" rx="2"/>
+    <rect x="480" y="139" width="12" height="16" rx="2"/>
+  </g>
+</svg>

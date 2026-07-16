@@ -1,0 +1,42 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <!-- 記事サムネ：文化祭前夜と、夏アニメの空の色（ポップと青春）
+       夕方の教室の窓。茜→山吹→藍へ溶ける空と、机に落ちる長い影 -->
+  <defs>
+    <linearGradient id="bun-yuu" x1="0" y1="0" x2="0.15" y2="1">
+      <stop offset="0" stop-color="#1B2A4A" stop-opacity="0.34"/>
+      <stop offset="42%" stop-color="#E8674A" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#F5B841" stop-opacity="0.70"/>
+    </linearGradient>
+    <linearGradient id="bun-kage" x1="0" y1="0" x2="1" y2="0.4">
+      <stop offset="0" stop-color="#3A3226" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#3A3226" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="#FDF6E9"/>
+
+  <!-- 窓のむこうの夕空 -->
+  <rect x="72" y="40" width="416" height="212" rx="6" fill="url(#bun-yuu)"/>
+  <!-- 沈みかけの光の玉（放射光線なし） -->
+  <circle cx="392" cy="210" r="34" fill="#F5B841" fill-opacity="0.75"/>
+  <circle cx="392" cy="210" r="62" fill="#F5B841" fill-opacity="0.16"/>
+
+  <!-- 窓枠（白鼠） -->
+  <g fill="none" stroke="#EDE8DE" stroke-width="10">
+    <rect x="72" y="40" width="416" height="212" rx="6"/>
+    <path d="M280 40 V252"/>
+    <path d="M72 146 H488"/>
+  </g>
+
+  <!-- 窓辺の机と、のびる影 -->
+  <path d="M40 296 H600 V306 H40 Z" fill="#3A3226" fill-opacity="0.10"/>
+  <path d="M96 252 L240 306 L112 306 Z" fill="url(#bun-kage)"/>
+
+  <!-- 描きかけの看板（茜・松葉・藍の色紙。多色で「青春」の気配だけ置く） -->
+  <g opacity="0.9">
+    <rect x="512" y="182" width="88" height="70" rx="4" fill="#EDE8DE"/>
+    <rect x="524" y="196" width="64" height="8" rx="4" fill="#E8674A" fill-opacity="0.8"/>
+    <rect x="524" y="214" width="44" height="8" rx="4" fill="#5A7247" fill-opacity="0.7"/>
+    <rect x="524" y="232" width="54" height="8" rx="4" fill="#1B2A4A" fill-opacity="0.5"/>
+  </g>
+</svg>

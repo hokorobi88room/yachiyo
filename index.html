@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>八千代 -yachiyo-｜日出づる国の、ちいさな発見。</title>
+  <meta name="description" content="日本の素晴らしさに、ふと気づくためのブログ。くらしの美、風景と旅、ことばと物語、ポップと青春、いまの日本、技と職人——朝のような静けさで綴ります。">
+  <link rel="canonical" href="https://hokorobi88room.github.io/yachiyo/">
+  
+  <link rel="alternate" type="application/atom+xml" title="八千代 -yachiyo-" href="/yachiyo/feed.xml">
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="八千代 -yachiyo-">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:url" content="https://hokorobi88room.github.io/yachiyo/">
+  <meta property="og:title" content="八千代 -yachiyo-｜日出づる国の、ちいさな発見。">
+  <meta property="og:description" content="日本の素晴らしさに、ふと気づくためのブログ。くらしの美、風景と旅、ことばと物語、ポップと青春、いまの日本、技と職人——朝のような静けさで綴ります。">
+  <meta property="og:image" content="https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="八千代 -yachiyo-｜日出づる国の、ちいさな発見。">
+  <meta name="twitter:description" content="日本の素晴らしさに、ふと気づくためのブログ。くらしの美、風景と旅、ことばと物語、ポップと青春、いまの日本、技と職人——朝のような静けさで綴ります。">
+  <meta name="twitter:image" content="https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg">
+
+  
+  <link rel="icon" type="image/webp" href="/yachiyo/static/img/icons/favicon.webp?v=3ae21d36">
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="/yachiyo/static/img/icons/icon-32.png?v=1ac891f9">
+  
+  <link rel="apple-touch-icon" href="/yachiyo/static/img/icons/icon-180.png?v=ad6337d9">
+  <link rel="manifest" href="/yachiyo/site.webmanifest">
+  
+  <meta name="theme-color" content="#FDF6E9">
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" media="print" data-font-css>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap"></noscript>
+
+  <link rel="stylesheet" href="/yachiyo/static/css/tokens.css?v=1a533e2a">
+  <link rel="stylesheet" href="/yachiyo/static/css/base.css?v=9c4d4b43">
+  
+  <link rel="stylesheet" href="/yachiyo/static/css/entrance.css?v=53c49ac0">
+  
+  
+  <link rel="stylesheet" href="/yachiyo/static/css/hero.css?v=77694e38">
+  <link rel="stylesheet" href="/yachiyo/static/css/yachiyo.css?v=b55c563e">
+  <link rel="stylesheet" href="/yachiyo/static/css/mirror.css?v=0944f794">
+
+
+  <script>
+    /* (1) 同一セッションの再訪はエントランスを出さない（描画前に判定しチラつきを防ぐ）
+       (2) 夜の時間帯なら、最初の描画から夜空の配色にする（朝の色が一瞬見えるのを防ぐ）
+           ＝ sky.js と同じ式。sky.js は defer なので、ここで先に当てておく。
+       (3) media="print" で読んだフォントCSSを、描画をブロックせずに有効化する */
+    (function () {
+      try {
+        if (sessionStorage.getItem('yachiyo:entered')) {
+          document.documentElement.classList.add('ent-skip');
+        }
+      } catch (e) { /* プライベートモード等は初回扱い */ }
+
+      var d = new Date();
+      var h = d.getHours() + d.getMinutes() / 60;
+      var night = (h < 6 || h >= 18);
+      var n = (h >= 19 || h < 6) ? 1
+            : (h >= 7 && h < 18) ? 0
+            : (h >= 18) ? (h - 18) : (1 - (h - 6));
+      /* 天体の位置も**描画前に**確定させる。ここで入れておかないと、
+         最初の1フレームは CSS の既定値で描かれ、そこから transition で
+         正しい位置へ滑ってしまう（＝リロードのたび天体の場所が違って見える）。
+         ★ 式は sky.js の apply() と**一字一句同一**にすること（x: 100-100t / y: 80-72sin）。
+           片方だけ変えると、初回フレームの位置から sky.js が滑らせ直して
+           「天体がリロードのたび動く」バグが再発する。変えるときは両方同時に。 */
+      var t = night ? (((h - 18) + 24) % 24) / 12 : (h - 6) / 12;
+      var el = document.documentElement;
+      el.style.setProperty('--night', n.toFixed(3));
+      /* 読み面は 0 か 1 だけ（連続に混ぜると文字が地に溶ける／sky.js と同じ規則） */
+      el.style.setProperty('--ui-night', n >= 0.5 ? '1' : '0');
+      el.style.setProperty('--sky-x', (100 - t * 100).toFixed(2) + '%');
+      el.style.setProperty('--sky-y', (80 - 72 * Math.sin(Math.PI * t)).toFixed(2) + '%');
+      el.classList.toggle('sky-night', night);
+      el.classList.toggle('sky-day', !night);
+      el.classList.toggle('is-dark', n >= 0.5);
+      var f = document.querySelector('[data-font-css]');
+      if (f) {
+        f.addEventListener('load', function () { f.media = 'all'; }, { once: true });
+      }
+    })();
+  </script>
+
+  
+  
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "alternateName": "\u65e5\u51fa\u3065\u308b\u56fd\u306e\u3001\u3061\u3044\u3055\u306a\u767a\u898b\u3002", "description": "\u65e5\u672c\u306e\u7d20\u6674\u3089\u3057\u3055\u306b\u3001\u3075\u3068\u6c17\u3065\u304f\u305f\u3081\u306e\u30d6\u30ed\u30b0\u3002", "inLanguage": "ja-JP", "name": "\u516b\u5343\u4ee3 -yachiyo-", "url": "https://hokorobi88room.github.io/yachiyo/"}</script>
+  
+</head>
+<body class="" data-page="home">
+
+  
+  <a class="skip-link" href="#main">本文へスキップ</a>
+
+  
+  
+  
+<div class="entrance" data-entrance aria-hidden="true">
+  <div class="entrance__sky">                
+    <div class="entrance__sky-l entrance__sky-l--akane"></div>
+    <div class="entrance__sky-l entrance__sky-l--yamabuki"></div>
+    <div class="entrance__sky-l entrance__sky-l--kinari"></div>
+  </div>
+  
+  <div class="entrance__body entrance__body--sun"></div>
+  <div class="entrance__body entrance__body--moon" data-moon
+       data-moon-src="/yachiyo/static/img/moon.webp?v=0c1312c0"></div>
+
+  <div class="entrance__torii"></div>        
+  <div class="entrance__flash"></div>        
+  <p class="entrance__skip">タップ／キーでスキップ</p>
+</div>
+  
+
+  
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="/yachiyo/" aria-label="八千代 ホームへ">
+        <span class="brand__ja">八千代</span>
+        <span class="brand__en">yachiyo</span>
+      </a>
+
+      
+      <button class="nav-burger" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-burger>
+        <span class="nav-burger__bars" aria-hidden="true"></span>
+        <span class="nav-burger__label">メニュー</span>
+      </button>
+
+      <nav class="nav" id="site-nav" aria-label="メインナビゲーション" data-nav>
+        <a class="nav__link" href="/yachiyo/"
+           aria-current="page">ホーム</a>
+
+        <div class="nav__group" data-nav-group>
+          <button class="nav__link nav__toggle" type="button"
+                  aria-expanded="false" aria-controls="nav-categories" data-nav-toggle>
+            きづき<span class="nav__caret" aria-hidden="true"></span>
+          </button>
+          <ul class="nav__menu" id="nav-categories" data-nav-menu hidden>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/kizuki/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>すべての気づき</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/kurashi/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/owan.webp?v=4deec49a" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>くらしの美</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/keshiki/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/torii.webp?v=c66c0007" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>風景と旅</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/kotoba/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>ことばと物語</span>
+                
+                <span class="pill--count" aria-hidden="true">442</span><span class="visually-hidden">442本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/pop/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/gakubou.webp?v=5562f509" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>ポップと青春</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/ima/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/tsuru.webp?v=da8680e0" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>いまの日本</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/waza/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/kanazuchi.webp?v=e483c6ac" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>技と職人</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+          </ul>
+        </div>
+
+        <a class="nav__link" href="/yachiyo/uta/"
+           >うた</a>
+
+        <a class="nav__link" href="/yachiyo/about/"
+           >このサイトについて</a>
+
+        
+        
+        <button class="theme-toggle" type="button" data-theme-toggle>
+          <span class="theme-toggle__mark" aria-hidden="true"></span>
+          <span class="theme-toggle__label" data-theme-label>夜にする</span>
+        </button>
+      </nav>
+    </div>
+    
+    <div class="site-header__shimenawa" aria-hidden="true"></div>
+  </header>
+
+  <main id="main" class="site-main" tabindex="-1">
+    
+<section class="hero">
+
+  
+  <h1 class="visually-hidden">八千代 — 日出づる国の、ちいさな発見。</h1>
+
+  
+  <div class="yachiyo" data-yachiyo aria-hidden="true">
+    <div class="yachiyo__sky"></div>                       
+    <div class="yachiyo__stars"></div>                     
+
+    
+    <div class="yachiyo__body yachiyo__body--sun"></div>
+    <div class="yachiyo__body yachiyo__body--moon" data-moon
+         data-moon-src="/yachiyo/static/img/moon.webp?v=0c1312c0"></div>
+
+    <div class="yachiyo__haze yachiyo__haze--3"></div>     
+    <div class="yachiyo__haze yachiyo__haze--2"></div>
+    <div class="yachiyo__haze yachiyo__haze--1"></div>
+    <div class="yachiyo__water"></div>                     
+    <span class="yachiyo__spark yachiyo__spark--a"></span> 
+    <span class="yachiyo__spark yachiyo__spark--b"></span>
+  </div>
+
+  
+  <div class="yachiyo__petals" data-petals aria-hidden="true"
+       data-petal-src="/yachiyo/static/img/parts/petal.webp?v=e36938bb"></div>
+
+  
+  <div class="hero__fuji" aria-hidden="true"></div>
+
+  
+  <div class="hero__stage wrap">
+    <p class="hero__catch">日出づる国の、<br>ちいさな発見。</p>
+
+    
+    <div class="mirror" data-mirror aria-hidden="true">
+      <img class="mirror__face" alt="" src="/yachiyo/static/img/mirror.webp?v=736aec4a"
+           width="659" height="907" decoding="async" fetchpriority="high">
+      
+      <div class="mirror__scene" data-mirror-scene></div>
+    </div>
+  </div>
+
+  
+  <a class="hero__cue" href="#gyosei" data-scroll-cue>
+    <span class="visually-hidden">きょうの一首へ</span>
+  </a>
+</section>
+
+    
+
+
+<section class="section home-word" id="gyosei" data-today-gyosei
+         data-gyosei-src="/yachiyo/data/gyosei.json">
+  <div class="wrap home-word__inner">
+    <h2 class="home-word__label">きょうの、和歌</h2>
+
+    
+    
+    
+    <a class="gyosei-link" data-gyosei-link
+       href="/yachiyo/post/waka-364/"
+       title="この一首の解説を読む" aria-label="この一首の解説を読む">
+    <div class="gyosei" data-gyosei-poem aria-hidden="true">
+      
+      
+      <span class="gyosei__ku gyosei__ku--i0">もの思へば</span>
+      
+      <span class="gyosei__ku gyosei__ku--i1">沢の蛍も</span>
+      
+      <span class="gyosei__ku gyosei__ku--i2">わが身より</span>
+      
+      <span class="gyosei__ku gyosei__ku--i0">あくがれ出づる</span>
+      
+      <span class="gyosei__ku gyosei__ku--i1">魂かとぞ見る</span>
+      
+      
+    </div>
+    </a>
+    <p class="visually-hidden" data-gyosei-plain>もの思へば沢の蛍もわが身よりあくがれ出づる魂かとぞ見る</p>
+
+    
+    <p class="home-word__yomi" data-gyosei-kana >ものおもへば さはのほたるも わがみより あくがれいづる たまかとぞみる</p>
+
+    <span class="home-word__rule" aria-hidden="true"></span>
+
+    <p class="home-word__note" data-gyosei-meaning>思い悩んでいると、沢を飛ぶ蛍さえ、我が身から抜け出てさまよう魂ではないかと見えてしまう。</p>
+    <p class="home-word__by">
+      <span class="home-word__author" data-gyosei-author>和泉式部</span><span class="home-word__sep" aria-hidden="true" >・</span><span data-gyosei-year >11世紀初（後拾遺和歌集 1162）</span>
+    </p>
+    <p class="home-word__who" data-gyosei-who >平安中期の歌人</p>
+
+    
+    <p class="home-word__more">
+      
+      <a class="btn btn--primary" data-gyosei-link href="/yachiyo/post/waka-364/">解説を読む</a>
+      
+      <a class="btn btn--ghost" href="/yachiyo/uta/ichiran/">うたの一覧（441首）</a>
+      <a class="btn btn--ghost" href="/yachiyo/uta/">和歌の、よみかたへ</a>
+    </p>
+  </div>
+</section>
+
+
+
+<section class="section" id="latest">
+  <div class="wrap">
+    <header class="section__head home-head">
+      <span class="shimenawa-rule" aria-hidden="true"></span>
+      <h2 class="section__title">あたらしい気づき</h2>
+    </header>
+
+    
+    <div class="card-grid">
+      
+      
+      <article class="post-card">
+        
+        <img class="post-card__thumb" src="/yachiyo/static/img/bunkasai-zenya.svg" alt="" loading="lazy">
+        
+        <div class="post-card__body">
+          
+          <a class="post-card__cat" href="/yachiyo/category/pop/">ポップと青春</a>
+          
+          <h3 class="post-card__title">
+            <a class="post-card__link" href="/yachiyo/post/bunkasai-zenya/">文化祭前夜と、夏アニメの空の色</a>
+          </h3>
+          <time class="post-card__date" datetime="2026-07-07">2026.07.07</time>
+          <p class="post-card__excerpt">教室に残った夜と、あのアニメの夕焼け。青春はいつでも上書きされていく。</p>
+        </div>
+      </article>
+      
+      
+      <article class="post-card">
+        
+        <img class="post-card__thumb" src="/yachiyo/static/img/asa-no-torii.svg" alt="" loading="lazy">
+        
+        <div class="post-card__body">
+          
+          <a class="post-card__cat" href="/yachiyo/category/keshiki/">風景と旅</a>
+          
+          <h3 class="post-card__title">
+            <a class="post-card__link" href="/yachiyo/post/asa-no-torii/">朝いちばんの鳥居をくぐる</a>
+          </h3>
+          <time class="post-card__date" datetime="2026-06-21">2026.06.21</time>
+          <p class="post-card__excerpt">だれもいない早朝の参道で気づいた、日本の「間」のはなし。</p>
+        </div>
+      </article>
+      
+      
+      <article class="post-card">
+        
+        <img class="post-card__thumb" src="/yachiyo/static/img/takokuseki-no-shotengai.svg" alt="" loading="lazy">
+        
+        <div class="post-card__body">
+          
+          <a class="post-card__cat" href="/yachiyo/category/ima/">いまの日本</a>
+          
+          <h3 class="post-card__title">
+            <a class="post-card__link" href="/yachiyo/post/takokuseki-no-shotengai/">多国籍な商店街のいい匂い</a>
+          </h3>
+          <time class="post-card__date" datetime="2026-05-18">2026.05.18</time>
+          <p class="post-card__excerpt">海外の友人が驚いた、いつもの商店街。ひらかれた日本は、もうここにある。</p>
+        </div>
+      </article>
+      
+      
+      <article class="post-card">
+        
+        <img class="post-card__thumb" src="/yachiyo/static/img/komorebi-toiu-kotoba.svg" alt="" loading="lazy">
+        
+        <div class="post-card__body">
+          
+          <a class="post-card__cat" href="/yachiyo/category/kotoba/">ことばと物語</a>
+          
+          <h3 class="post-card__title">
+            <a class="post-card__link" href="/yachiyo/post/komorebi-toiu-kotoba/">「木漏れ日」という語のうつくしさ</a>
+          </h3>
+          <time class="post-card__date" datetime="2026-04-05">2026.04.05</time>
+          <p class="post-card__excerpt">訳しにくい、と外国の友人に言われて、はじめて立ち止まった言葉のはなし。</p>
+        </div>
+      </article>
+      
+      
+      <article class="post-card">
+        
+        <img class="post-card__thumb" src="/yachiyo/static/img/kanna-kuzu.svg" alt="" loading="lazy">
+        
+        <div class="post-card__body">
+          
+          <a class="post-card__cat" href="/yachiyo/category/waza/">技と職人</a>
+          
+          <h3 class="post-card__title">
+            <a class="post-card__link" href="/yachiyo/post/kanna-kuzu/">光をとおす鉋屑の薄さ</a>
+          </h3>
+          <time class="post-card__date" datetime="2026-03-14">2026.03.14</time>
+          <p class="post-card__excerpt">光が透けるほど薄い鉋屑。町工場と建具職人の手もとに、ただ見とれた午後。</p>
+        </div>
+      </article>
+      
+      
+      <article class="post-card">
+        
+        <img class="post-card__thumb" src="/yachiyo/static/img/yunomi-no-tezawari.svg" alt="" loading="lazy">
+        
+        <div class="post-card__body">
+          
+          <a class="post-card__cat" href="/yachiyo/category/kurashi/">くらしの美</a>
+          
+          <h3 class="post-card__title">
+            <a class="post-card__link" href="/yachiyo/post/yunomi-no-tezawari/">湯呑みの手ざわりに気づいた朝</a>
+          </h3>
+          <time class="post-card__date" datetime="2026-02-11">2026.02.11</time>
+          <p class="post-card__excerpt">一汁一菜と、手になじむ器のはなし。特別じゃない日々のなかの美しさ。</p>
+        </div>
+      </article>
+      
+    </div>
+    
+    <p class="home-more"><a href="/yachiyo/kizuki/">きづきを、ぜんぶ見る（447件）</a></p>
+    
+  </div>
+</section>
+
+
+<section class="section section--alt">
+  <div class="wrap">
+    <header class="section__head home-head">
+      <span class="shimenawa-rule" aria-hidden="true"></span>
+      <h2 class="section__title">きづきの、入り口</h2>
+      <p class="section__lead">古(いにしえ)から、いまの日本まで。すきなところから、どうぞ。</p>
+    </header>
+    <div class="home-cats">
+      
+      <a class="cat-chip" href="/yachiyo/category/kurashi/">
+        <span class="cat-chip__icon">
+          <img src="/yachiyo/static/img/icons/owan.webp?v=4deec49a" alt="" aria-hidden="true">
+        </span>
+        <span class="cat-chip__name">くらしの美</span>
+      </a>
+      
+      <a class="cat-chip" href="/yachiyo/category/keshiki/">
+        <span class="cat-chip__icon">
+          <img src="/yachiyo/static/img/icons/torii.webp?v=c66c0007" alt="" aria-hidden="true">
+        </span>
+        <span class="cat-chip__name">風景と旅</span>
+      </a>
+      
+      <a class="cat-chip" href="/yachiyo/category/kotoba/">
+        <span class="cat-chip__icon">
+          <img src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true">
+        </span>
+        <span class="cat-chip__name">ことばと物語</span>
+      </a>
+      
+      <a class="cat-chip" href="/yachiyo/category/pop/">
+        <span class="cat-chip__icon">
+          <img src="/yachiyo/static/img/icons/gakubou.webp?v=5562f509" alt="" aria-hidden="true">
+        </span>
+        <span class="cat-chip__name">ポップと青春</span>
+      </a>
+      
+      <a class="cat-chip" href="/yachiyo/category/ima/">
+        <span class="cat-chip__icon">
+          <img src="/yachiyo/static/img/icons/tsuru.webp?v=da8680e0" alt="" aria-hidden="true">
+        </span>
+        <span class="cat-chip__name">いまの日本</span>
+      </a>
+      
+      <a class="cat-chip" href="/yachiyo/category/waza/">
+        <span class="cat-chip__icon">
+          <img src="/yachiyo/static/img/icons/kanazuchi.webp?v=e483c6ac" alt="" aria-hidden="true">
+        </span>
+        <span class="cat-chip__name">技と職人</span>
+      </a>
+      
+    </div>
+  </div>
+</section>
+
+
+  </main>
+
+  
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <div class="footer__brand">
+        <span class="footer__brand-ja">八千代</span>
+        <span class="footer__brand-en">-yachiyo-</span>
+        <p class="footer__tagline">日出づる国の、ちいさな発見。</p>
+      </div>
+      <nav class="footer__nav" aria-label="フッターナビゲーション">
+        <p class="footer__nav-head">めぐる</p>
+        <a href="/yachiyo/"
+           aria-current="page">ホーム</a>
+        <a href="/yachiyo/kizuki/"
+           >きづきの、すべて</a>
+        <a href="/yachiyo/uta/"
+           >うた</a>
+        <a href="/yachiyo/about/"
+           >このサイトについて</a>
+        
+        <a href="https://github.com/hokorobi88room/yachiyo/issues" rel="noopener">連絡窓口</a>
+      </nav>
+      <nav class="footer__nav" aria-label="カテゴリ">
+        <p class="footer__nav-head">きづき</p>
+        
+        <a href="/yachiyo/category/kurashi/"
+           >くらしの美</a>
+        
+        <a href="/yachiyo/category/keshiki/"
+           >風景と旅</a>
+        
+        <a href="/yachiyo/category/kotoba/"
+           >ことばと物語</a>
+        
+        <a href="/yachiyo/category/pop/"
+           >ポップと青春</a>
+        
+        <a href="/yachiyo/category/ima/"
+           >いまの日本</a>
+        
+        <a href="/yachiyo/category/waza/"
+           >技と職人</a>
+        
+      </nav>
+    </div>
+    
+    <p class="footer__copy">© <span data-year>2026</span> 八千代 -yachiyo-</p>
+    <div class="footer__fuji" aria-hidden="true"></div>
+  </footer>
+
+  
+  <a href="#main" class="to-top" data-to-top aria-label="ページの先頭へ戻る"></a>
+
+  <script src="/yachiyo/static/js/sky.js?v=edf40f4e" defer></script>
+  <script src="/yachiyo/static/js/main.js?v=80adceb1" defer></script>
+  
+  <script src="/yachiyo/static/js/entrance.js?v=1a24712f" defer></script>
+  
+  
+  <script src="/yachiyo/static/js/yachiyo.js?v=04e6a2a4" defer></script>
+  <script src="/yachiyo/static/js/mirror.js?v=5eed20c8" defer></script>
+  <script src="/yachiyo/static/js/gyosei.js?v=13853dfb" defer></script>
+
+</body>
+</html>

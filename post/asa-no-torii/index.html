@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>朝いちばんの鳥居をくぐる｜八千代 -yachiyo-</title>
+  <meta name="description" content="だれもいない早朝の参道で気づいた、日本の「間」のはなし。">
+  <link rel="canonical" href="https://hokorobi88room.github.io/yachiyo/post/asa-no-torii/">
+  
+  <link rel="alternate" type="application/atom+xml" title="八千代 -yachiyo-" href="/yachiyo/feed.xml">
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="八千代 -yachiyo-">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:url" content="https://hokorobi88room.github.io/yachiyo/post/asa-no-torii/">
+  <meta property="og:title" content="朝いちばんの鳥居をくぐる">
+  <meta property="og:description" content="だれもいない早朝の参道で気づいた、日本の「間」のはなし。">
+  <meta property="og:image" content="https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="朝いちばんの鳥居をくぐる">
+  <meta name="twitter:description" content="だれもいない早朝の参道で気づいた、日本の「間」のはなし。">
+  <meta name="twitter:image" content="https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg">
+
+  
+  <link rel="icon" type="image/webp" href="/yachiyo/static/img/icons/favicon.webp?v=3ae21d36">
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="/yachiyo/static/img/icons/icon-32.png?v=1ac891f9">
+  
+  <link rel="apple-touch-icon" href="/yachiyo/static/img/icons/icon-180.png?v=ad6337d9">
+  <link rel="manifest" href="/yachiyo/site.webmanifest">
+  
+  <meta name="theme-color" content="#FDF6E9">
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" media="print" data-font-css>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap"></noscript>
+
+  <link rel="stylesheet" href="/yachiyo/static/css/tokens.css?v=1a533e2a">
+  <link rel="stylesheet" href="/yachiyo/static/css/base.css?v=9c4d4b43">
+  
+  
+  <link rel="stylesheet" href="/yachiyo/static/css/pages.css?v=b2c14dc6">
+
+
+  <script>
+    /* (1) 同一セッションの再訪はエントランスを出さない（描画前に判定しチラつきを防ぐ）
+       (2) 夜の時間帯なら、最初の描画から夜空の配色にする（朝の色が一瞬見えるのを防ぐ）
+           ＝ sky.js と同じ式。sky.js は defer なので、ここで先に当てておく。
+       (3) media="print" で読んだフォントCSSを、描画をブロックせずに有効化する */
+    (function () {
+      try {
+        if (sessionStorage.getItem('yachiyo:entered')) {
+          document.documentElement.classList.add('ent-skip');
+        }
+      } catch (e) { /* プライベートモード等は初回扱い */ }
+
+      var d = new Date();
+      var h = d.getHours() + d.getMinutes() / 60;
+      var night = (h < 6 || h >= 18);
+      var n = (h >= 19 || h < 6) ? 1
+            : (h >= 7 && h < 18) ? 0
+            : (h >= 18) ? (h - 18) : (1 - (h - 6));
+      /* 天体の位置も**描画前に**確定させる。ここで入れておかないと、
+         最初の1フレームは CSS の既定値で描かれ、そこから transition で
+         正しい位置へ滑ってしまう（＝リロードのたび天体の場所が違って見える）。
+         ★ 式は sky.js の apply() と**一字一句同一**にすること（x: 100-100t / y: 80-72sin）。
+           片方だけ変えると、初回フレームの位置から sky.js が滑らせ直して
+           「天体がリロードのたび動く」バグが再発する。変えるときは両方同時に。 */
+      var t = night ? (((h - 18) + 24) % 24) / 12 : (h - 6) / 12;
+      var el = document.documentElement;
+      el.style.setProperty('--night', n.toFixed(3));
+      /* 読み面は 0 か 1 だけ（連続に混ぜると文字が地に溶ける／sky.js と同じ規則） */
+      el.style.setProperty('--ui-night', n >= 0.5 ? '1' : '0');
+      el.style.setProperty('--sky-x', (100 - t * 100).toFixed(2) + '%');
+      el.style.setProperty('--sky-y', (80 - 72 * Math.sin(Math.PI * t)).toFixed(2) + '%');
+      el.classList.toggle('sky-night', night);
+      el.classList.toggle('sky-day', !night);
+      el.classList.toggle('is-dark', n >= 0.5);
+      var f = document.querySelector('[data-font-css]');
+      if (f) {
+        f.addEventListener('load', function () { f.media = 'all'; }, { once: true });
+      }
+    })();
+  </script>
+
+  
+  
+  
+  
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "author": {"@type": "Organization", "name": "\u516b\u5343\u4ee3 \u7de8\u96c6\u90e8"}, "dateModified": "2026-06-21", "datePublished": "2026-06-21", "description": "\u3060\u308c\u3082\u3044\u306a\u3044\u65e9\u671d\u306e\u53c2\u9053\u3067\u6c17\u3065\u3044\u305f\u3001\u65e5\u672c\u306e\u300c\u9593\u300d\u306e\u306f\u306a\u3057\u3002", "headline": "\u671d\u3044\u3061\u3070\u3093\u306e\u9ce5\u5c45\u3092\u304f\u3050\u308b", "image": "https://hokorobi88room.github.io/yachiyo/static/img/ogp.jpg", "inLanguage": "ja-JP", "mainEntityOfPage": {"@id": "https://hokorobi88room.github.io/yachiyo/post/asa-no-torii/", "@type": "WebPage"}, "publisher": {"@type": "Organization", "name": "\u516b\u5343\u4ee3 -yachiyo-"}, "url": "https://hokorobi88room.github.io/yachiyo/post/asa-no-torii/"}</script>
+
+  
+  
+    
+  
+  
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "item": "https://hokorobi88room.github.io/yachiyo/", "name": "\u30db\u30fc\u30e0", "position": 1}, {"@type": "ListItem", "item": "https://hokorobi88room.github.io/yachiyo/category/keshiki/", "name": "\u98a8\u666f\u3068\u65c5", "position": 2}, {"@type": "ListItem", "item": "https://hokorobi88room.github.io/yachiyo/post/asa-no-torii/", "name": "\u671d\u3044\u3061\u3070\u3093\u306e\u9ce5\u5c45\u3092\u304f\u3050\u308b", "position": 3}]}</script>
+
+  
+</head>
+<body class="page-post" data-page="post">
+
+  
+  <a class="skip-link" href="#main">本文へスキップ</a>
+
+  
+  
+
+  
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="/yachiyo/" aria-label="八千代 ホームへ">
+        <span class="brand__ja">八千代</span>
+        <span class="brand__en">yachiyo</span>
+      </a>
+
+      
+      <button class="nav-burger" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-burger>
+        <span class="nav-burger__bars" aria-hidden="true"></span>
+        <span class="nav-burger__label">メニュー</span>
+      </button>
+
+      <nav class="nav" id="site-nav" aria-label="メインナビゲーション" data-nav>
+        <a class="nav__link" href="/yachiyo/"
+           >ホーム</a>
+
+        <div class="nav__group" data-nav-group>
+          <button class="nav__link nav__toggle" type="button"
+                  aria-expanded="false" aria-controls="nav-categories" data-nav-toggle>
+            きづき<span class="nav__caret" aria-hidden="true"></span>
+          </button>
+          <ul class="nav__menu" id="nav-categories" data-nav-menu hidden>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/kizuki/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>すべての気づき</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/kurashi/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/owan.webp?v=4deec49a" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>くらしの美</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/keshiki/"
+                 aria-current="page">
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/torii.webp?v=c66c0007" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>風景と旅</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/kotoba/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/makimono.webp?v=7ebb28e3" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>ことばと物語</span>
+                
+                <span class="pill--count" aria-hidden="true">442</span><span class="visually-hidden">442本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/pop/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/gakubou.webp?v=5562f509" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>ポップと青春</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/ima/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/tsuru.webp?v=da8680e0" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>いまの日本</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+            <li>
+              <a class="nav__menu-link" href="/yachiyo/category/waza/"
+                 >
+                <img class="nav__menu-icon" src="/yachiyo/static/img/icons/kanazuchi.webp?v=e483c6ac" alt="" aria-hidden="true" width="20" height="20" loading="lazy" decoding="async">
+                <span>技と職人</span>
+                
+                <span class="pill--count" aria-hidden="true">1</span><span class="visually-hidden">1本</span>
+              </a>
+            </li>
+            
+          </ul>
+        </div>
+
+        <a class="nav__link" href="/yachiyo/uta/"
+           >うた</a>
+
+        <a class="nav__link" href="/yachiyo/about/"
+           >このサイトについて</a>
+
+        
+        
+        <button class="theme-toggle" type="button" data-theme-toggle>
+          <span class="theme-toggle__mark" aria-hidden="true"></span>
+          <span class="theme-toggle__label" data-theme-label>夜にする</span>
+        </button>
+      </nav>
+    </div>
+    
+    <div class="site-header__shimenawa" aria-hidden="true"></div>
+  </header>
+
+  <main id="main" class="site-main" tabindex="-1">
+    
+    
+<article class="section post">
+  <div class="wrap">
+
+    
+    <nav class="breadcrumb" aria-label="パンくず">
+      <ol>
+        <li class="breadcrumb__item"><a href="/yachiyo/">ホーム</a></li>
+        <li class="breadcrumb__item"><a href="/yachiyo/kizuki/">きづき</a></li>
+        
+        <li class="breadcrumb__item">
+          <a href="/yachiyo/category/keshiki/">風景と旅</a>
+        </li>
+        
+        <li class="breadcrumb__item" aria-current="page">朝いちばんの鳥居をくぐる</li>
+      </ol>
+    </nav>
+
+    
+    <header class="post__head">
+      <span class="sun-ornament post__sun" aria-hidden="true"></span>
+      <h1 class="post__title">朝いちばんの鳥居をくぐる</h1>
+      <div class="post__meta">
+        
+        <time class="post__date" datetime="2026-06-21">2026.06.21</time>
+        
+        
+        
+        
+        <span class="post__read">よむのに 2分</span>
+        
+        
+        <a class="tag" href="/yachiyo/category/keshiki/">風景と旅</a>
+        
+      </div>
+      
+      <span class="shimenawa-rule post__rule" aria-hidden="true"></span>
+    </header>
+
+    
+    
+
+    
+    <div class="post-body">
+      <p>夏至の朝、思い立って近所の神社へ出かけた。日の出とほとんど同時に家を出たので、参道にはまだ人影がひとつもない。掃き清められた砂利がしっとりと湿っていて、一歩ごとに小さな音が立つ。その音がやけに大きく聞こえるくらい、あたりは静かだった。</p>
+<h2 id="_1">鳥居は「くぐる」ためにある</h2>
+<p>ふだん私は鳥居を、写真の背景くらいにしか思っていなかった。けれどだれもいない朝にひとりで立つと、これは見るものではなく、くぐるものなのだと体でわかる。</p>
+<p>一の鳥居をくぐる。少し歩いて、二の鳥居をくぐる。そのたびに、さっきまで背負っていた予定や気がかりが、ひとつずつ後ろに置かれていく気がした。門をひとつ越えるごとに、世界の解像度が上がっていく。何もない木の枠を通り抜けるだけなのに、内と外がはっきりと分かれる。この境目の感覚を、昔の人はよく発明したものだと思う。</p>
+<p>額束の真後ろから朝日が差してきて、参道の砂利がひとつぶずつ金色に光った。放射する光線ではなく、ただ静かに満ちてくる明るさ。まぶしさで目を細めるのではなく、あたたかさで目を細めるような光だ。神社の朝の光は、いつもこんなふうにやわらかい。</p>
+<h2 id="_2">何もない時間が、いちばん豊かだった</h2>
+<p>拝殿の前で手を合わせても、正直、特別なお願いごとは浮かばなかった。ただ、木々のあいだを風がとおる音を聞きながら、しばらくぼんやり立っていた。</p>
+<p>日本の建物や庭には、この「何もない時間」を大切にする仕掛けが多い。間（ま）という言葉があるくらいだ。音楽の休符と同じで、そこには何も置かれていないのに、たしかな役割がある。</p>
+<blockquote>
+<p>余白があるからこそ、その前後がきわだつ。</p>
+</blockquote>
+<p>参道の長さも、砂利を踏む時間も、たぶん無駄ではなく、心をならすためにわざと用意された余白なのだと、ようやく腑に落ちた。</p>
+<p>帰り道、一の鳥居をくぐって振り返ると、境内はもうすっかり朝の光に包まれていた。すれ違いに、犬を連れた年配の方が会釈して入っていく。日常が、静かに動きはじめる。</p>
+<p>すごい絶景を見たわけではない。ただ、いつもの神社の、いつもの朝。それでも、早起きしてよかったと素直に思えた。清々しさというのは、たぶんこういう小さな余白の積み重ねでできている。次はもう少し遠くの、山あいの鳥居まで足をのばしてみようか。そんなことを考えながら、朝の街をゆっくり歩いて帰った。</p>
+    </div>
+
+    
+    
+
+    
+    <footer class="post-foot">
+      <div class="post-mirror" aria-hidden="true">
+        <img class="post-mirror__face" alt="" src="/yachiyo/static/img/mirror.webp?v=736aec4a"
+             width="659" height="907" loading="lazy" decoding="async">
+      </div>
+
+      <p class="post-mirror__caption">この記事で、なにが映りましたか？</p>
+
+      <div class="post-share">
+        <a class="btn btn--ghost"
+           href="https://twitter.com/intent/tweet?text=%E6%9C%9D%E3%81%84%E3%81%A1%E3%81%B0%E3%82%93%E3%81%AE%E9%B3%A5%E5%B1%85%E3%82%92%E3%81%8F%E3%81%90%E3%82%8B&amp;url=https%3A//hokorobi88room.github.io/yachiyo/post/asa-no-torii/"
+           target="_blank" rel="noopener noreferrer">
+          X でシェア<span class="visually-hidden">（新しいタブで開きます）</span>
+        </a>
+        <button type="button" class="btn btn--ghost"
+                data-copy-link data-url="https://hokorobi88room.github.io/yachiyo/post/asa-no-torii/">
+          リンクをコピー
+        </button>
+        
+        <span class="post-share__status" role="status" aria-live="polite" data-copy-status></span>
+      </div>
+    </footer>
+
+    
+    
+    <nav class="post-nav" aria-label="記事の前後">
+      
+      <a class="btn-torii btn-torii--prev post-nav__link post-nav__link--prev"
+         href="/yachiyo/post/takokuseki-no-shotengai/" rel="prev">
+        <span class="post-nav__dir">← まえ</span>
+        <span class="post-nav__title">多国籍な商店街のいい匂い</span>
+      </a>
+      
+      
+      <a class="btn-torii btn-torii--next post-nav__link post-nav__link--next"
+         href="/yachiyo/post/bunkasai-zenya/" rel="next">
+        <span class="post-nav__dir">つぎ →</span>
+        <span class="post-nav__title">文化祭前夜と、夏アニメの空の色</span>
+      </a>
+      
+    </nav>
+    
+
+  </div>
+</article>
+
+  </main>
+
+  
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <div class="footer__brand">
+        <span class="footer__brand-ja">八千代</span>
+        <span class="footer__brand-en">-yachiyo-</span>
+        <p class="footer__tagline">日出づる国の、ちいさな発見。</p>
+      </div>
+      <nav class="footer__nav" aria-label="フッターナビゲーション">
+        <p class="footer__nav-head">めぐる</p>
+        <a href="/yachiyo/"
+           >ホーム</a>
+        <a href="/yachiyo/kizuki/"
+           >きづきの、すべて</a>
+        <a href="/yachiyo/uta/"
+           >うた</a>
+        <a href="/yachiyo/about/"
+           >このサイトについて</a>
+        
+        <a href="https://github.com/hokorobi88room/yachiyo/issues" rel="noopener">連絡窓口</a>
+      </nav>
+      <nav class="footer__nav" aria-label="カテゴリ">
+        <p class="footer__nav-head">きづき</p>
+        
+        <a href="/yachiyo/category/kurashi/"
+           >くらしの美</a>
+        
+        <a href="/yachiyo/category/keshiki/"
+           aria-current="page">風景と旅</a>
+        
+        <a href="/yachiyo/category/kotoba/"
+           >ことばと物語</a>
+        
+        <a href="/yachiyo/category/pop/"
+           >ポップと青春</a>
+        
+        <a href="/yachiyo/category/ima/"
+           >いまの日本</a>
+        
+        <a href="/yachiyo/category/waza/"
+           >技と職人</a>
+        
+      </nav>
+    </div>
+    
+    <p class="footer__copy">© <span data-year>2026</span> 八千代 -yachiyo-</p>
+    <div class="footer__fuji" aria-hidden="true"></div>
+  </footer>
+
+  
+  <a href="#main" class="to-top" data-to-top aria-label="ページの先頭へ戻る"></a>
+
+  <script src="/yachiyo/static/js/sky.js?v=edf40f4e" defer></script>
+  <script src="/yachiyo/static/js/main.js?v=80adceb1" defer></script>
+  
+  
+  
+  <script>
+    /* リンクをコピー（成功と失敗を必ず区別する／js-4・a11y-5） */
+    (function () {
+      var btn = document.querySelector('[data-copy-link]');
+      if (!btn) return;
+      var status = document.querySelector('[data-copy-status]');
+      var timer = null;
+
+      /* ボタンの文字は変えない（＝ボタンの名前が化けない）。結果はボタンの隣に添える */
+      var flash = function (text) {
+        if (!status) return;
+        status.textContent = text;
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () { status.textContent = ''; }, 2400);
+      };
+      var done = function () { flash('コピーしました'); };
+      var fail = function () { flash('コピーできませんでした'); };
+
+      btn.addEventListener('click', function () {
+        var url = btn.getAttribute('data-url') || location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done, fail);
+          return;
+        }
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        if (ok) { done(); } else { fail(); }
+      });
+    })();
+
+    /* 表とコードの横スクロール領域をキーボードで操作できるようにする（a11y-12）。
+       JS が無い場合は pages.css の既定（table 自身が overflow-x:auto）のまま劣化しない。 */
+    (function () {
+      var body = document.querySelector('.post-body');
+      if (!body) return;
+
+      var tables = body.querySelectorAll('table');
+      Array.prototype.forEach.call(tables, function (table) {
+        if (!table.parentNode || table.parentNode.classList.contains('table-scroll')) return;
+        var box = document.createElement('div');
+        box.className = 'table-scroll';
+        box.setAttribute('tabindex', '0');
+        box.setAttribute('role', 'region');
+        box.setAttribute('aria-label', '表（横にスクロールできます）');
+        table.parentNode.insertBefore(box, table);
+        box.appendChild(table);
+      });
+
+      var pres = body.querySelectorAll('pre');
+      Array.prototype.forEach.call(pres, function (pre) {
+        pre.setAttribute('tabindex', '0');
+        pre.setAttribute('role', 'region');
+        pre.setAttribute('aria-label', 'コード（横にスクロールできます）');
+      });
+    })();
+  </script>
+
+</body>
+</html>

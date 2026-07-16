@@ -1,0 +1,286 @@
+/* ==========================================================================
+   八千代 -yachiyo-  |  entrance.css
+   鳥居エントランスのタイムライン演出（CONCEPT §2）＋ サイト共通のJS状態クラス。
+   トップページだけが読み込む（base.html が page_id == 'home' のときだけ include）。
+   色・寸法は tokens.css の変数のみを使い、色はハードコードしない。
+   演出の進行時間は --ent-dur で一括制御する。
+
+   ★重要：オーバーレイの退場は **CSS だけで必ず完了する**（@keyframes ent-leave）。
+     JS が落ちてもサイトが操作不能にならないための単一障害点対策。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. オーバーレイ本体（最前面・全画面・くぐり抜けを clip）
+   -------------------------------------------------------------------------- */
+.entrance {
+  --ent-dur: 3.4s;                 /* フル再生の総尺 */
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-entrance);
+  overflow: hidden;                /* 鳥居 scale(6) のはみ出しを切る＝横スク防止 */
+  background: var(--iro-ai);       /* 初描画の下地は夜明け前の藍 */
+  cursor: pointer;                 /* どこでもスキップ可の示唆 */
+  opacity: 1;
+  /* 総尺の終わりに必ず不可視・非操作になる（JS不要）*/
+  animation: ent-leave var(--ent-dur) linear forwards;
+}
+
+/* JS が付ける早期スキップ状態（アニメを止めてフェードで抜ける）*/
+.entrance.is-leaving {
+  animation: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease), visibility 0s linear 0.5s;
+}
+
+/* 同一セッションの再訪：演出を最初から出さない（head のインライン判定と対）*/
+.ent-skip .entrance { display: none !important; }
+
+/* スクロールロック（演出中は背後を動かさない。JSが body/html に付与）*/
+.entrance-lock {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* --------------------------------------------------------------------------
+   2. 空：藍(夜明け前) → 茜 → 山吹 → 生成り(朝の淡い光) へ
+      background-image は補間されない（discrete）ため、色ごとに層を重ね
+      opacity をクロスフェードして「グラデーションの遷移」を成立させる。
+   -------------------------------------------------------------------------- */
+.entrance__sky {
+  position: absolute;
+  inset: 0;
+  background-color: var(--iro-ai);
+  /* 0% の空（夜明け前の藍・地平がうっすら茜） */
+  background-image: linear-gradient(
+    to bottom,
+    var(--iro-ai) 0%,
+    var(--iro-ai) 55%,
+    color-mix(in srgb, var(--iro-akane) 30%, var(--iro-ai)) 100%
+  );
+}
+.entrance__sky-l {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity;
+}
+/* 茜の空（地平から朝日が昇りはじめる） */
+.entrance__sky-l--akane {
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, var(--iro-akane) 35%, var(--iro-ai)) 0%,
+    color-mix(in srgb, var(--iro-akane) 70%, var(--iro-ai)) 55%,
+    var(--iro-akane) 100%);
+  animation: ent-sky-akane var(--ent-dur) linear forwards;
+}
+/* 山吹の空 */
+.entrance__sky-l--yamabuki {
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, var(--iro-akane) 55%, var(--iro-yamabuki)) 0%,
+    var(--iro-akane) 45%,
+    var(--iro-yamabuki) 100%);
+  animation: ent-sky-yamabuki var(--ent-dur) linear forwards;
+}
+/* 朝の淡い光（生成り） */
+.entrance__sky-l--kinari {
+  background-image: linear-gradient(to bottom,
+    color-mix(in srgb, var(--iro-yamabuki) 30%, var(--iro-kinari)) 0%,
+    var(--iro-kinari) 55%,
+    var(--iro-kinari) 100%);
+  animation: ent-sky-kinari var(--ent-dur) linear forwards;
+}
+
+/* --------------------------------------------------------------------------
+   3. 天体：地平線の下から昇る。放射光線なし（描いてもらった朝日の玉／夜は月）
+   -------------------------------------------------------------------------- */
+.entrance__body {
+  position: absolute;
+  left: 50%;
+  top: 46%;                        /* 鳥居の額束の高さに合わせる */
+  /* ヒーローの天体と同じ寸法。着地したときに大きさが飛ばないようにするため。 */
+  width: clamp(180px, 28vw, 360px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: ent-body var(--ent-dur) var(--ease-out) forwards;
+}
+.entrance__body--sun {
+  background: url("../img/sun.webp") center / contain no-repeat;
+}
+.entrance__body--moon {
+  /* ヒーローの月と同じ寸法。ここを書かないと、くぐり抜けた先で月だけ 2.4倍から縮む */
+  width: clamp(88px, 11vw, 150px);
+  filter: drop-shadow(0 0 26px color-mix(in srgb, var(--text-on-deep) 30%, transparent));
+}
+.entrance__body--moon svg { width: 100%; height: 100%; display: block; }
+
+/* 昼は月を、夜は朝日を出さない（JS 実行前は朝日が既定） */
+html:not(.sky-night) .entrance__body--moon { display: none; }
+.sky-night .entrance__body--sun { display: none; }
+
+/* 夜は空を明るませない（藍のまま）。明転もまぶしくしない。 */
+.sky-night .entrance__sky-l { animation: none; opacity: 0; }
+.sky-night .entrance__flash { opacity: 0; animation: none; }
+
+/* --------------------------------------------------------------------------
+   4. 大鳥居：シルエット（藍）でフェードイン→拡大（くぐる）→抜けて消える
+   -------------------------------------------------------------------------- */
+.entrance__torii {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(78vmin, 560px);
+  aspect-ratio: 900 / 650;          /* 描いてもらった大鳥居（torii.png）の比 */
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center center;
+  /* 額束（中央上の板）の真後ろに朝日が来る構図。絵の柱は下端で切れている */
+  background: url("../img/torii.webp") center bottom / contain no-repeat;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: ent-torii var(--ent-dur) ease-in-out forwards;
+}
+
+/* --------------------------------------------------------------------------
+   5. 明転：くぐった先の白くやわらかな光（生成り寄りの発光）
+   -------------------------------------------------------------------------- */
+.entrance__flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 46%, var(--surface), var(--iro-kinari));
+  opacity: 0;
+  pointer-events: none;
+  animation: ent-flash var(--ent-dur) var(--ease) forwards;
+}
+
+/* --------------------------------------------------------------------------
+   6. スキップ告知（最初から読める。空の色が変わっても藍のピル地でAAを確保）
+   -------------------------------------------------------------------------- */
+.entrance__skip {
+  position: absolute;
+  left: 50%;
+  bottom: max(clamp(20px, 6vh, 56px), env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.45em 1.05em;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--deep) 82%, transparent);
+  font-family: var(--font-gothic);
+  font-size: var(--fs-small);
+  letter-spacing: var(--ls-label);
+  color: var(--iro-kinari);        /* 藍82%のピル地の上で 8:1 以上 */
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;            /* クリックは親（.entrance）が受ける */
+  animation: ent-skip var(--ent-dur) var(--ease) forwards;
+}
+
+/* --------------------------------------------------------------------------
+   7. キーフレーム（タイムラインは % で定義し、総尺は --ent-dur で伸縮）
+   -------------------------------------------------------------------------- */
+/* オーバーレイ本体：明転のあと必ず消える（CSSだけで完結する退場）*/
+@keyframes ent-leave {
+  0%, 92%  { opacity: 1; visibility: visible; }
+  99.9%    { opacity: 0; }
+  100%     { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* 空のクロスフェード（opacity 補間なのでパッと切り替わらない）*/
+@keyframes ent-sky-akane {
+  0%  { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes ent-sky-yamabuki {
+  0%, 30% { opacity: 0; }
+  58%     { opacity: 1; }
+  100%    { opacity: 1; }
+}
+@keyframes ent-sky-kinari {
+  0%, 58% { opacity: 0; }
+  84%     { opacity: 1; }
+  100%    { opacity: 1; }
+}
+
+/* 朝日の上昇：地平線の下 → 額束の高さへ */
+/* 天体：地平の下から昇り、額束の真後ろで一度止まり、
+   最後にヒーローの天体の位置（--ent-dx / --ent-dy）へ静かに移る。
+   ＝ くぐり抜けた先で太陽の位置が飛ばない（sky.js が座標を公開している）。 */
+@keyframes ent-body {
+  0%   { opacity: 0;   transform: translate(-50%, calc(-50% + 52vh)) scale(0.92); }
+  22%  { opacity: 0.9; }
+  62%  { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
+  100% { opacity: 1;
+         transform: translate(calc(-50% + var(--ent-dx, 0px)), calc(-50% + var(--ent-dy, 0px)))
+                    scale(1); }
+}
+
+/* 大鳥居：フェードイン → 少し溜め → くぐって拡大しながら消える */
+@keyframes ent-torii {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  38%  { opacity: 0; }                                              /* 空が明るむまで待つ */
+  52%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  64%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } /* 前進の予備動作 */
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(6); }    /* 柱が左右へ抜ける */
+}
+
+/* 明転：終盤に白くふわっと発光 */
+@keyframes ent-flash {
+  0%, 66% { opacity: 0; }
+  86%     { opacity: 0.9; }
+  100%    { opacity: 0.35; }
+}
+
+/* スキップ告知：すぐ出して、明転で引く（透過による減光はしない）*/
+@keyframes ent-skip {
+  0%      { opacity: 0; }
+  6%, 86% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   8. モーション配慮（CONCEPT §2 / §10）
+      アニメせず「朝日＋鳥居の静止画」を 0.5 秒見せ、フェードして本編へ。
+      base.css の全体 reduce 規則（animation-duration: 0.001ms !important）を
+      オーバーレイ本体だけは上書きし、静止＋フェードの尺を確保する。
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .entrance__sky-l,
+  .entrance__body,
+  .entrance__torii,
+  .entrance__flash,
+  .entrance__skip {
+    animation: none !important;
+  }
+  /* 色の層は使わず、静止画のグラデ1枚で見せる */
+  .entrance__sky-l { display: none; }
+  .entrance__sky {
+    background-image: linear-gradient(to bottom,
+      color-mix(in srgb, var(--iro-yamabuki) 22%, var(--iro-kinari)) 0%,
+      var(--iro-kinari) 55%,
+      color-mix(in srgb, var(--iro-akane-usu) 28%, var(--iro-kinari)) 100%);
+  }
+  /* 静止画：天体はヒーローと同じ位置に最初から置く（動かさない） */
+  .entrance__body  { opacity: 1;
+                     transform: translate(calc(-50% + var(--ent-dx, 0px)),
+                                          calc(-50% + var(--ent-dy, 0px))); }
+  .entrance__torii { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .entrance__flash { opacity: 0; }
+  .entrance__skip  { opacity: 1; background: color-mix(in srgb, var(--deep) 88%, transparent); }
+  /* 静止 0.5 秒 → フェードで本編（尺は 1.1s） */
+  .entrance {
+    animation: ent-leave-reduced 1.1s linear forwards !important;
+    animation-duration: 1.1s !important;
+  }
+}
+@keyframes ent-leave-reduced {
+  0%, 45% { opacity: 1; visibility: visible; }
+  99.9%   { opacity: 0; }
+  100%    { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* Windows ハイコントラスト：mask で塗った鳥居が消えないように */
+@media (forced-colors: active) {
+  .entrance__torii { forced-color-adjust: none; }
+}
